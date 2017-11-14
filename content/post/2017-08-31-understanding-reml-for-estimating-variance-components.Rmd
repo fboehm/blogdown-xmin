@@ -1,0 +1,33 @@
+---
+title: Understanding REML for estimating variance components
+author: Frederick Boehm
+date: '`r lubridate::now()`'
+draft: 'false'
+bibliography: blog.bib
+slug: understanding-reml-for-estimating-variance-components
+categories:
+  - statistics
+tags:
+  - Linear mixed effects models
+  - Variance components
+---
+
+## Overview
+
+I used much of the summer of 2017 to study linear mixed effects models. I'm writing this blog post to document my experience. Perhaps readers will find it useful in designing their study plans for mixed models.
+
+I found particularly useful Sections 8.4 and 8.5 of @wakefield2013bayesian. The author describes in detail a general framework for linear mixed models before venturing into likelihood-based inference for these models. Particularly appealing to me, and differing from works of many others, is the emphasis of @wakefield2013bayesian on being explicit about conditioning. For instance, in page on 359, he describes a two-stage linear mixed model (LMM) by stating that the first stage involves a response model that is *conditional* on the random effects. I can't recall other authors whose notation and language so clearly explained this and other instances of conditioning in discussions of LMMs.
+
+## REML Estimation for Variance Components
+
+In section 8.5.3 @wakefield2013bayesian introduces residual maximum likelihood (REML) methods for inference of variance components. I particularly like how the author uses marginal likelihood to explain REML. The derivation culminates in the log residual likelihood equation on page 371. It explains why the log residual likelihood function has the form that it has. Below, $U$ is the rotated $Y$ matrix, while $\alpha$ is the vector of variance components.
+
+$$p(U | \alpha) = c \frac{|x^Tx|^{\frac{1}{2}}|V|^{- \frac{1}{2}}}{|x^TV^{-1}x|^{\frac{1}{2}}}\exp\left(-\frac{1}{2} (y - x\hat\beta)^TV^{-1}(y - x\hat\beta) \right)$$
+Discarding the constant terms - $c$ and $|x^Tx|^{\frac{1}{2}}$ - we get the restricted log likelihood for inference of the variance components $\alpha$:
+
+$$l_{Residual}(\alpha) = - \frac{1}{2}\log |x^TV^{-1}x| - \frac{1}{2} \log |V| - \frac{1}{2}(y - x\hat \beta)V^{-1}(y - x\hat\beta)$$
+
+
+
+## Literature cited
+

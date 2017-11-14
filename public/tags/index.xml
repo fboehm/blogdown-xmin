@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Frederick Boehm&#39;s Professional Website</title>
+    <link>/tags/</link>
+    <description>Recent content in Tags on Frederick Boehm&#39;s Professional Website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 23 May 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Blogdown</title>
+      <link>/tags/blogdown/</link>
+      <pubDate>Tue, 23 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/blogdown/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Bob Dylan</title>
+      <link>/tags/bob-dylan/</link>
+      <pubDate>Mon, 03 Jul 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/bob-dylan/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Commencement</title>
+      <link>/tags/commencement/</link>
+      <pubDate>Mon, 03 Jul 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/commencement/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Conference materials</title>
+      <link>/tags/conference-materials/</link>
+      <pubDate>Fri, 14 Jul 2017 10:52:36 +0000</pubDate>
+      
+      <guid>/tags/conference-materials/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Dplyr</title>
+      <link>/tags/dplyr/</link>
+      <pubDate>Mon, 11 Sep 2017 14:51:29 +0000</pubDate>
+      
+      <guid>/tags/dplyr/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>EM algorithm</title>
+      <link>/tags/em-algorithm/</link>
+      <pubDate>Tue, 04 Jul 2017 10:13:51 +0000</pubDate>
+      
+      <guid>/tags/em-algorithm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Genetics</title>
+      <link>/tags/genetics/</link>
+      <pubDate>Tue, 04 Jul 2017 10:13:51 +0000</pubDate>
+      
+      <guid>/tags/genetics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>High-throughput computing</title>
+      <link>/tags/high-throughput-computing/</link>
+      <pubDate>Mon, 16 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/high-throughput-computing/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Life of the mind</title>
+      <link>/tags/life-of-the-mind/</link>
+      <pubDate>Sun, 10 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/life-of-the-mind/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Linear mixed effects models</title>
+      <link>/tags/linear-mixed-effects-models/</link>
+      <pubDate>Sat, 02 Sep 2017 12:38:19 +0000</pubDate>
+      
+      <guid>/tags/linear-mixed-effects-models/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Newton-Raphson</title>
+      <link>/tags/newton-raphson/</link>
+      <pubDate>Tue, 04 Jul 2017 10:13:52 +0000</pubDate>
+      
+      <guid>/tags/newton-raphson/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>R</title>
+      <link>/tags/r/</link>
+      <pubDate>Mon, 16 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/r/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Testing</title>
+      <link>/tags/testing/</link>
+      <pubDate>Fri, 14 Jul 2017 10:52:36 +0000</pubDate>
+      
+      <guid>/tags/testing/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Variance components</title>
+      <link>/tags/variance-components/</link>
+      <pubDate>Sat, 02 Sep 2017 12:38:19 +0000</pubDate>
+      
+      <guid>/tags/variance-components/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,12 @@
+---
+title: My presentation materials on Figshare
+author: Frederick Boehm
+date: '`r lubridate::now()`'
+slug: my-presentation-materials-on-figshare
+categories:
+  - academics
+tags:
+  - conference materials
+---
+
+I'm trying to remember to post my presentation materials on figshare.com. You can find them by clicking on the figshare icon on my home page or by clicking [here](https://figshare.com/authors/_/2919734). Included is the [poster](https://figshare.com/articles/Event_Detection_with_Topic_Modeling_of_Tweets/3545468) that I presented yesterday at [PolMeth XXXIV](https://polmeth.polisci.wisc.edu).

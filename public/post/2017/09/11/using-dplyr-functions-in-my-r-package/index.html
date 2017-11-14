@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Using `dplyr` functions in my R package | Frederick Boehm&#39;s Professional Website</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/about/">About</a></li>
+      
+      <li><a href="/categories/">Categories</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Using `dplyr` functions in my R package</span></h1>
+<h2 class="author">Frederick Boehm</h2>
+<h2 class="date">2017/09/11</h2>
+</div>
+
+<main>
+<div id="background" class="section level2">
+<h2>Background</h2>
+<p>I wrote the following function for use in my <code>pleiotropy</code> R package.</p>
+<pre class="r"><code>calc_lod &lt;- function(data, n_mouse){
+  # define log10detrss0
+  log10detrss0 &lt;- dplyr::filter(data, marker1 == marker2)
+  pre1 &lt;- dplyr::group_by(data, marker1)
+  profile1 &lt;- dplyr::summarise(pre1, profile = min(log10detrss))
+  pre2 &lt;- dplyr::group_by(data, marker2)
+  profile2 &lt;- dplyr::summarise(pre2, profile = min(log10detrss))
+  return(tibble::tibble(lod1 = - n_mouse * (profile1$profile - min(log10detrss0$log10detrss)) / 2,
+                        lod2 = - n_mouse * (profile2$profile - min(log10detrss0$log10detrss))/ 2,
+                        joint = - n_mouse * (log10detrss0$log10detrss - min(log10detrss0$log10detrss)) / 2))
+}</code></pre>
+<p>I then wanted to include this function in my R package <code>pleiotropy</code>. However, when I run <code>devtools::check()</code> for this package, I get a note. Specifically, the note says:</p>
+<blockquote>
+<p>checking R code for possible problems … NOTE</p>
+</blockquote>
+<blockquote>
+<p>calc_lod: no visible binding for global variable ‘marker1’</p>
+</blockquote>
+<blockquote>
+<p>calc_lod: no visible binding for global variable ‘marker2’</p>
+</blockquote>
+<blockquote>
+<p>calc_lod: no visible binding for global variable ‘log10detrss’</p>
+</blockquote>
+<blockquote>
+<p>Undefined global functions or variables:</p>
+</blockquote>
+<blockquote>
+<p>log10detrss marker1 marker2</p>
+</blockquote>
+<p>I believe that the note arises because of the nonstandard evaluation methods that the <code>dplyr</code> R package uses.</p>
+<p>I then sought to fix the code so that, on running <code>devtools::check()</code>, I would not create this note.</p>
+<p>For the reader to understand my goals with this function, I will take a moment to describe the inputs to <code>calc_lod</code>. I use two inputs, <code>data</code> and <code>n_mouse</code>. The first, <code>data</code>, is a tibble with three columns. The columns have the names: <code>marker1</code>, <code>marker2</code>, and <code>log10detrss</code>. Each row represents a unique (ordered) pairing of markers and contains, in the third column, the logarithm of the determinant of the residual sum of squares matrix.</p>
+<p>The second input, <code>n_mouse</code>, is needed for the calculation of LOD scores, as the code demonstrates. It corresponds to the number of mice used in the analysis.</p>
+</div>
+<div id="programming-with-dplyr-r-package" class="section level2">
+<h2>Programming with <code>dplyr</code> R package</h2>
+<p>The <a href="https://cran.r-project.org/web/packages/dplyr/vignettes/programming.html"><code>dplyr</code> programming vignette</a> is where I started in my efforts to understand <code>dplyr</code> evaluation methods.</p>
+</div>
+<div id="finding-the-answer-in-dplyr-programming-vignette" class="section level2">
+<h2>Finding the answer in <code>dplyr</code> programming vignette</h2>
+<p>Near the top of the programming vignette, just above the heading “Different Expressions”, the author writes:</p>
+<blockquote>
+<p>If this function is in a package, using .data also prevents R CMD check from giving a NOTE about undefined global variables (provided that you’ve also imported rlang::.data with <span class="citation">@importFrom</span> rlang .data).</p>
+</blockquote>
+<p>After a google search, I realized that <code>rlang</code> is an R package that I’ve never before used. However, I still wasn’t sure exactly how to accomplish what the vignette says is a solution.</p>
+<p>I decided to rewrite my function by adding <code>.data$</code> to the variable names as needed. This led me to have a function that looks like this:</p>
+<pre class="r"><code>calc_lod &lt;- function(data, n_mouse){
+  # define log10detrss0
+  log10detrss0 &lt;- dplyr::filter(data, .data$marker1 == .data$marker2)
+  pre1 &lt;- dplyr::group_by(data, .data$marker1)
+  profile1 &lt;- dplyr::summarise(pre1, profile = min(.data$log10detrss))
+  pre2 &lt;- dplyr::group_by(data, .data$marker2)
+  profile2 &lt;- dplyr::summarise(pre2, profile = min(.data$log10detrss))
+  return(tibble::tibble(lod1 = - n_mouse * (profile1$profile - min(log10detrss0$log10detrss)) / 2,
+                        lod2 = - n_mouse * (profile2$profile - min(log10detrss0$log10detrss))/ 2,
+                        joint = - n_mouse * (log10detrss0$log10detrss - min(log10detrss0$log10detrss)) / 2))
+}</code></pre>
+<p>In re-reading the sentence:</p>
+<blockquote>
+<p>If this function is in a package, using .data also prevents R CMD check from giving a NOTE about undefined global variables (provided that you’ve also imported rlang::.data with <span class="citation">@importFrom</span> rlang .data).</p>
+</blockquote>
+<p>I guessed that I needed to add to my R script for calc_lod a line of notation for roxygen2.</p>
+<p>With this line, my calc_lod.R file - which contains only the function <code>calc_lod</code> - looks like this:</p>
+<pre class="r"><code>#&#39; Calculate LODs - two profile and one joint - for two traits
+#&#39;
+#&#39; @param data tibble containing log10determinants of RSS
+#&#39; @param n_mouse sample size
+#&#39; @export
+#&#39; @importFrom rlang .data
+
+calc_lod &lt;- function(data, n_mouse){
+  # define log10detrss0
+  log10detrss0 &lt;- dplyr::filter(data, .data$marker1 == .data$marker2)
+  pre1 &lt;- dplyr::group_by(data, .data$marker1)
+  profile1 &lt;- dplyr::summarise(pre1, profile = min(.data$log10detrss))
+  pre2 &lt;- dplyr::group_by(data, .data$marker2)
+  profile2 &lt;- dplyr::summarise(pre2, profile = min(.data$log10detrss))
+  return(tibble::tibble(lod1 = - n_mouse * (profile1$profile - min(log10detrss0$log10detrss)) / 2,
+                        lod2 = - n_mouse * (profile2$profile - min(log10detrss0$log10detrss))/ 2,
+                        joint = - n_mouse * (log10detrss0$log10detrss - min(log10detrss0$log10detrss)) / 2))
+}</code></pre>
+<p>It’s important to notice that I manually added the line</p>
+<pre class="r"><code>#&#39; @importFrom rlang .data</code></pre>
+<p>so that roxygen2, the R package that assembles the NAMESPACE file, would know to import <code>.data</code> from R package <code>rlang</code>.</p>
+<p>Finally, I added <code>rlang</code> to the <code>pleiotropy</code> package dependencies by typing:</p>
+<pre class="r"><code>devtools::use_package(&quot;rlang&quot;)</code></pre>
+<p>Now, when I run <code>devtools::check()</code> in the <code>pleiotropy</code> package directory, I see that there is no note produced:</p>
+<blockquote>
+<p>R CMD check results</p>
+</blockquote>
+<blockquote>
+<p>0 errors | 0 warnings | 0 notes</p>
+</blockquote>
+</div>
+
+</main>
+
+  <footer>
+  <script src="//yihui.name/js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+<script async src="//yihui.name/js/center-img.js"></script>
+
+  
+  <hr/>
+  &copy; <a href="https://fboehm.us">Frederick Boehm</a> 2017 | <a href="https://github.com/fboehm">Github</a> | <a href="https://twitter.com/fredboehm128">Twitter</a>
+  
+  </footer>
+  </body>
+</html>
+

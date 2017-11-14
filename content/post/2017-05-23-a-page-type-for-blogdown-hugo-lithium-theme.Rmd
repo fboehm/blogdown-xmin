@@ -1,0 +1,29 @@
+---
+title: A ‘page’ type for blogdown & hugo lithium theme
+author: Frederick Boehm
+date: '2017-05-23'
+slug: a-page-type-for-blogdown-hugo-lithium-theme
+type: post
+categories:
+  - Computing
+tags:
+  - blogdown
+---
+
+I didn't like the fact that my 'About' and 'Research' pages included a Disqus section, as I don't need comments on these materials. I decided to find a way to create pages - which are not blog posts - that don't have the Disqus section. I'm using, as of right now, Yihui Xie's hugo lithium theme, with a few small modifications that I've documented in my first blog post.
+
+The Hugo [documentation on types](https://gohugo.io/content/types/) is quite good. The `layouts` subdirectory for the lithium theme contains, by default, two subdirectories, `_default` and `partials`. Within `_default` are two files, `list.html` and `single.html`. I see that, in the file `layouts/_default/single.html` there is a line near the end of the file that says:
+
+```{bash, eval = FALSE}
+  {{ partial "disqus.html" .}}
+```
+
+Following the Hugo documentation, I created a subdirectory `layouts/page`. I then copied the files `_default/single.html` and `_default/list.html` to the new directory. I then edited the file `layouts/page/single.html` by removing the line that I highlighted above, i.e. the line with "disqus.html". 
+
+I then created a `content/page` subdirectory and moved the Rmd files - that is, those Rmd files for my pages - to `content/page/about.Rmd`, for example.
+
+I initially changed the `config.toml` menu items that link to my pages. I assumed, mistakenly, that the pages would be in `public/page/` directory, when, in fact they are in `public/`, for example, `public/about/`. Recognizing this, I undid my changes to `config.toml`. The site now seems to work as I desired - the pages have no Disqus section. 
+
+I forgot to say that I also copied the file `archetypes/default.md` to `archetypes/page.md`.
+
+

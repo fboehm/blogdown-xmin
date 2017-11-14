@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Newton-Raphson on Frederick Boehm&#39;s Professional Website</title>
+    <link>/tags/newton-raphson/</link>
+    <description>Recent content in Newton-Raphson on Frederick Boehm&#39;s Professional Website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 04 Jul 2017 10:13:52 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/newton-raphson/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Translating GEMMA’s Newton-Raphson Algorithm from C&#43;&#43; to R</title>
+      <link>/post/2017/07/04/translating-gemma-s-newton-raphson-algorithm-from-c-to-r/</link>
+      <pubDate>Tue, 04 Jul 2017 10:13:52 +0000</pubDate>
+      
+      <guid>/post/2017/07/04/translating-gemma-s-newton-raphson-algorithm-from-c-to-r/</guid>
+      <description>Overview We want to translate GEMMA’s C++ code in the function MphNR (in the file mvlmm.cpp) into R code as a way to better understand the calculations and the algorithm.
+MphNR C++ Code MphNR is defined in these lines in the GEMMA Github repository.
+ R code for MphNR #double MphNR (const char func_name, const size_t max_iter, const double max_prec, const gsl_vector *eval, const gsl_matrix *X, const gsl_matrix *Y, gsl_matrix *Hi_all, gsl_matrix *xHi_all, gsl_matrix *Hiy_all, gsl_matrix *V_g, gsl_matrix *V_e, gsl_matrix *Hessian_inv, double &amp;amp;crt_a, double &amp;amp;crt_b, double &amp;amp;crt_c) #{ MphNR &amp;lt;- function(func_name = &amp;quot;R&amp;quot;, max_iter, max_prec, eval, X, Y, Hi_all, xHi_all, Hiy_all, V_g, V_e){ n_size &amp;lt;- length(eval) c_size &amp;lt;- nrow(X) d_size &amp;lt;- nrow(Y) dc_size &amp;lt;- d_size * c_size v_size &amp;lt;- d_size * (d_size + 1) / 2 XXt &amp;lt;- X %*% t(X) log(det(XXt)) -&amp;gt; lndetXXt if (func_name == &amp;quot;R&amp;quot;){ logl_const &amp;lt;- - 0.</description>
+    </item>
+    
+  </channel>
+</rss>

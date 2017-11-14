@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Statistics on Frederick Boehm&#39;s Professional Website</title>
+    <link>/categories/statistics/</link>
+    <description>Recent content in Statistics on Frederick Boehm&#39;s Professional Website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 02 Sep 2017 12:38:19 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/statistics/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Understanding REML for estimating variance components</title>
+      <link>/post/2017/09/02/understanding-reml-for-estimating-variance-components/</link>
+      <pubDate>Sat, 02 Sep 2017 12:38:19 +0000</pubDate>
+      
+      <guid>/post/2017/09/02/understanding-reml-for-estimating-variance-components/</guid>
+      <description>Overview I used much of the summer of 2017 to study linear mixed effects models. I’m writing this blog post to document my experience. Perhaps readers will find it useful in designing their study plans for mixed models.
+I found particularly useful Sections 8.4 and 8.5 of Wakefield (2013). The author describes in detail a general framework for linear mixed models before venturing into likelihood-based inference for these models. Particularly appealing to me, and differing from works of many others, is the emphasis of Wakefield (2013) on being explicit about conditioning.</description>
+    </item>
+    
+  </channel>
+</rss>

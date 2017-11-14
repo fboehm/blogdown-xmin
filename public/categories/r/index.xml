@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>R on Frederick Boehm&#39;s Professional Website</title>
+    <link>/categories/r/</link>
+    <description>Recent content in R on Frederick Boehm&#39;s Professional Website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 14 Sep 2017 19:43:10 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/r/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>High-throughput computing &amp; working with condor</title>
+      <link>/post/2017/09/14/high-throughput-computing-working-with-condor/</link>
+      <pubDate>Thu, 14 Sep 2017 19:43:10 +0000</pubDate>
+      
+      <guid>/post/2017/09/14/high-throughput-computing-working-with-condor/</guid>
+      <description>Overview I’m learning to use a high-throughput computing facility - the Center for High-Throughput Computing at the University of Wisconsin-Madison. Below, I detail my experience in preparing my code for using the CHTC’s computers. What follows may be boring for the non-specialist (and, possibly, for the specialist, too).
+ The problem I need to fit tens of thousands - millions, even - of linear mixed effects models for my research in systems genetics.</description>
+    </item>
+    
+    <item>
+      <title>Using `dplyr` functions in my R package</title>
+      <link>/post/2017/09/11/using-dplyr-functions-in-my-r-package/</link>
+      <pubDate>Mon, 11 Sep 2017 14:51:29 +0000</pubDate>
+      
+      <guid>/post/2017/09/11/using-dplyr-functions-in-my-r-package/</guid>
+      <description>Background I wrote the following function for use in my pleiotropy R package.
+calc_lod &amp;lt;- function(data, n_mouse){ # define log10detrss0 log10detrss0 &amp;lt;- dplyr::filter(data, marker1 == marker2) pre1 &amp;lt;- dplyr::group_by(data, marker1) profile1 &amp;lt;- dplyr::summarise(pre1, profile = min(log10detrss)) pre2 &amp;lt;- dplyr::group_by(data, marker2) profile2 &amp;lt;- dplyr::summarise(pre2, profile = min(log10detrss)) return(tibble::tibble(lod1 = - n_mouse * (profile1$profile - min(log10detrss0$log10detrss)) / 2, lod2 = - n_mouse * (profile2$profile - min(log10detrss0$log10detrss))/ 2, joint = - n_mouse * (log10detrss0$log10detrss - min(log10detrss0$log10detrss)) / 2)) } I then wanted to include this function in my R package pleiotropy.</description>
+    </item>
+    
+    <item>
+      <title>Testing my R package</title>
+      <link>/post/2017/07/14/testing-my-r-package/</link>
+      <pubDate>Fri, 14 Jul 2017 10:52:36 +0000</pubDate>
+      
+      <guid>/post/2017/07/14/testing-my-r-package/</guid>
+      <description>I am assembling a package that implements an EM algorithm. I want to think about how I know whether the code works. Certainly, we know that an EM algorithm requires that the likelihood be non-decreasing over consecutive iterations.
+In looking at resources on testing, I found particularly helpful Karl Broman’s slides on testing R code. Hadley Wickham’s book Advanced R has a useful chapter on testing.</description>
+    </item>
+    
+    <item>
+      <title>GEMMA&#39;s EM algorithm implemented in R</title>
+      <link>/post/2017/05/16/gemma-em-in-r/</link>
+      <pubDate>Tue, 16 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2017/05/16/gemma-em-in-r/</guid>
+      <description>I need to estimate variance components for a linear mixed effects model. Specifically, I need to consider the model, from Zhou and Stephens (2014):
+\[Y = BX + G + E\] where \(Y\) is a \(2\) by \(n\) matrix of (possibly correlated) phenotypes (for \(n\) subjects), \(B\) is a \(2\) by \(c\) matrix of allelic effect sizes (where \(c\) denotes the number of alleles per locus), \(X\) is a \(c\) by \(n\) matrix containing genotypes (or genotype probabilities), \(G\) is a \(2\) by \(n\) matrix of random effects and \(E\) is a \(2\) by \(n\) matrix of random errors, which are assumed to be independent of \(G\).</description>
+    </item>
+    
+    <item>
+      <title>Getting started with blogdown</title>
+      <link>/post/2017/05/07/getting-started-with-blogdown/</link>
+      <pubDate>Sun, 07 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2017/05/07/getting-started-with-blogdown/</guid>
+      <description>While browsing the internet, I stumbled upon Rstudio’s new package blogdown. I read posts from Karl Broman and found the the book that the package authors - Yihui Xie and Amber Thomas - freely share.
+One tricky part of setting up the website involved the DNS settings. I bought the site fboehm.us through google domains. While the blogdown book provides instructions for DNS settings for other domain name providers, at the time I set up my site, they hadn’t written instructions for use with google domains.</description>
+    </item>
+    
+  </channel>
+</rss>

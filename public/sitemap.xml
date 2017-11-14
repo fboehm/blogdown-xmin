@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>/post/2017/10/16/r-code-profiling-saves-the-day/</loc>
+    <lastmod>2017-10-16T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/09/14/high-throughput-computing-working-with-condor/</loc>
+    <lastmod>2017-09-14T19:43:10+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/09/11/using-dplyr-functions-in-my-r-package/</loc>
+    <lastmod>2017-09-11T14:51:29+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/09/10/joan-didion-s-on-self-respect/</loc>
+    <lastmod>2017-09-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/09/02/understanding-reml-for-estimating-variance-components/</loc>
+    <lastmod>2017-09-02T12:38:19+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/08/16/mathematical-writing-by-donald-knuth-tracy-larrabee-and-paul-roberts/</loc>
+    <lastmod>2017-08-16T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/07/14/my-presentation-materials-on-figshare/</loc>
+    <lastmod>2017-07-14T10:52:36+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/07/14/testing-my-r-package/</loc>
+    <lastmod>2017-07-14T10:52:36+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/07/04/translating-gemma-s-newton-raphson-algorithm-from-c-to-r/</loc>
+    <lastmod>2017-07-04T10:13:52+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/07/04/deciphering-gemma-s-c-code/</loc>
+    <lastmod>2017-07-04T10:13:51+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/07/03/john-roberts-s-commencement-address/</loc>
+    <lastmod>2017-07-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/05/23/a-page-type-for-blogdown-hugo-lithium-theme/</loc>
+    <lastmod>2017-05-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/05/16/gemma-em-in-r/</loc>
+    <lastmod>2017-05-16T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2017/05/07/getting-started-with-blogdown/</loc>
+    <lastmod>2017-05-07T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/</loc>
+    <lastmod>2017-01-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/about/</loc>
+  </url>
+  
+  <url>
+    <loc>/about/</loc>
+  </url>
+  
+  <url>
+    <loc>/categories/academics/</loc>
+    <lastmod>2017-07-14T10:52:36+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/blogdown/</loc>
+    <lastmod>2017-05-23T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/bob-dylan/</loc>
+    <lastmod>2017-07-03T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/</loc>
+    <lastmod>2017-07-14T10:52:36+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/commencement/</loc>
+    <lastmod>2017-07-03T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/computing/</loc>
+    <lastmod>2017-07-04T10:13:52+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/computing/</loc>
+    <lastmod>2017-07-04T10:13:52+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/conference-materials/</loc>
+    <lastmod>2017-07-14T10:52:36+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/dplyr/</loc>
+    <lastmod>2017-09-11T14:51:29+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/em-algorithm/</loc>
+    <lastmod>2017-07-04T10:13:51+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/genetics/</loc>
+    <lastmod>2017-07-04T10:13:51+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/high-throughput-computing/</loc>
+    <lastmod>2017-10-16T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <lastmod>2017-10-16T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/categories/intellectualism/</loc>
+    <lastmod>2017-09-10T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/life-of-the-mind/</loc>
+    <lastmod>2017-09-10T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/linear-mixed-effects-models/</loc>
+    <lastmod>2017-09-02T12:38:19+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/mathematics/</loc>
+    <lastmod>2017-08-16T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/newton-raphson/</loc>
+    <lastmod>2017-07-04T10:13:52+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/packages/</loc>
+    <lastmod>2017-09-11T14:51:29+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/r/</loc>
+    <lastmod>2017-10-16T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/r/</loc>
+    <lastmod>2017-09-14T19:43:10+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/statistics/</loc>
+    <lastmod>2017-09-02T12:38:19+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2017-05-23T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/testing/</loc>
+    <lastmod>2017-07-14T10:52:36+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/variance-components/</loc>
+    <lastmod>2017-09-02T12:38:19+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/writing/</loc>
+    <lastmod>2017-09-10T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

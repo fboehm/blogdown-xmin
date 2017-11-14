@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>A ‘page’ type for blogdown &amp; hugo lithium theme | Frederick Boehm&#39;s Professional Website</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/about/">About</a></li>
+      
+      <li><a href="/categories/">Categories</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">A ‘page’ type for blogdown &amp; hugo lithium theme</span></h1>
+<h2 class="author">Frederick Boehm</h2>
+<h2 class="date">2017/05/23</h2>
+</div>
+
+<main>
+<p>I didn’t like the fact that my ‘About’ and ‘Research’ pages included a Disqus section, as I don’t need comments on these materials. I decided to find a way to create pages - which are not blog posts - that don’t have the Disqus section. I’m using, as of right now, Yihui Xie’s hugo lithium theme, with a few small modifications that I’ve documented in my first blog post.</p>
+<p>The Hugo <a href="https://gohugo.io/content/types/">documentation on types</a> is quite good. The <code>layouts</code> subdirectory for the lithium theme contains, by default, two subdirectories, <code>_default</code> and <code>partials</code>. Within <code>_default</code> are two files, <code>list.html</code> and <code>single.html</code>. I see that, in the file <code>layouts/_default/single.html</code> there is a line near the end of the file that says:</p>
+<pre class="bash"><code>  {{ partial &quot;disqus.html&quot; .}}</code></pre>
+<p>Following the Hugo documentation, I created a subdirectory <code>layouts/page</code>. I then copied the files <code>_default/single.html</code> and <code>_default/list.html</code> to the new directory. I then edited the file <code>layouts/page/single.html</code> by removing the line that I highlighted above, i.e. the line with “disqus.html”.</p>
+<p>I then created a <code>content/page</code> subdirectory and moved the Rmd files - that is, those Rmd files for my pages - to <code>content/page/about.Rmd</code>, for example.</p>
+<p>I initially changed the <code>config.toml</code> menu items that link to my pages. I assumed, mistakenly, that the pages would be in <code>public/page/</code> directory, when, in fact they are in <code>public/</code>, for example, <code>public/about/</code>. Recognizing this, I undid my changes to <code>config.toml</code>. The site now seems to work as I desired - the pages have no Disqus section.</p>
+<p>I forgot to say that I also copied the file <code>archetypes/default.md</code> to <code>archetypes/page.md</code>.</p>
+
+</main>
+
+  <footer>
+  <script src="//yihui.name/js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+<script async src="//yihui.name/js/center-img.js"></script>
+
+  
+  <hr/>
+  &copy; <a href="https://fboehm.us">Frederick Boehm</a> 2017 | <a href="https://github.com/fboehm">Github</a> | <a href="https://twitter.com/fredboehm128">Twitter</a>
+  
+  </footer>
+  </body>
+</html>
+

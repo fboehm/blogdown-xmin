@@ -1,0 +1,22 @@
+---
+title: Getting started with blogdown
+author: Frederick Boehm
+date: '2017-05-07'
+categories:
+  - R
+tags:
+  - blogdown
+  - R
+slug: getting-started-with-blogdown
+---
+
+While browsing the internet, I stumbled upon Rstudio's new package `blogdown`. I read [posts from Karl Broman](http://kbroman.org/blog/) and found the [the book](https://bookdown.org/yihui/blogdown/) that the package authors - Yihui Xie and Amber Thomas - freely share.
+
+One tricky part of setting up the website involved the DNS settings. I bought the site `fboehm.us` through google domains. While the blogdown book provides instructions for DNS settings for other domain name providers, at the time I set up my site, they hadn't written instructions for use with google domains. Fortunately, it was not too difficult, and, through trial and error, I managed to succeed. 
+
+Under "Configure DNS" button on Google Domains, I chose "Use custom name servers". Clicking on "Edit" enabled me to enter the server names that end in "nsone.net".
+
+In my netlify account page, under "Settings", I edited "DNS Records" by creating a new record for CNAME. I entered host name: `www.fboehm.us` and target: `fboehm.us`. I hope that I set it up properly.
+
+
+

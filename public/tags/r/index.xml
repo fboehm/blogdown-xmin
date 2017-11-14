@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>R on Frederick Boehm&#39;s Professional Website</title>
+    <link>/tags/r/</link>
+    <description>Recent content in R on Frederick Boehm&#39;s Professional Website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 16 Oct 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>R code profiling saves the day!</title>
+      <link>/post/2017/10/16/r-code-profiling-saves-the-day/</link>
+      <pubDate>Mon, 16 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2017/10/16/r-code-profiling-saves-the-day/</guid>
+      <description>Overview I recently needed to write R code to fit a linear model using generalized least squares (GLS). My initial attempt at writing functions to do this, while technically correct, seemed to be slow. For example, fitting about 100 such models took nearly 30 minutes on my MacBook Pro computer.
+My graduate school advisors suggested that I re-examine my code to see if I could find inefficiencies. For instance, if one were fitting multiple models with ordinary least squares (OLS), and the models all have the same design matrix, but distinct response vectors, then one could save computations by calculating only once the matrix \[(X^TX)^{-1}X^T\] and merely plugging in the response vector many times, using matrix multiplication, to get the OLS estimators for each model:</description>
+    </item>
+    
+    <item>
+      <title>Translating GEMMA’s Newton-Raphson Algorithm from C&#43;&#43; to R</title>
+      <link>/post/2017/07/04/translating-gemma-s-newton-raphson-algorithm-from-c-to-r/</link>
+      <pubDate>Tue, 04 Jul 2017 10:13:52 +0000</pubDate>
+      
+      <guid>/post/2017/07/04/translating-gemma-s-newton-raphson-algorithm-from-c-to-r/</guid>
+      <description>Overview We want to translate GEMMA’s C++ code in the function MphNR (in the file mvlmm.cpp) into R code as a way to better understand the calculations and the algorithm.
+MphNR C++ Code MphNR is defined in these lines in the GEMMA Github repository.
+ R code for MphNR #double MphNR (const char func_name, const size_t max_iter, const double max_prec, const gsl_vector *eval, const gsl_matrix *X, const gsl_matrix *Y, gsl_matrix *Hi_all, gsl_matrix *xHi_all, gsl_matrix *Hiy_all, gsl_matrix *V_g, gsl_matrix *V_e, gsl_matrix *Hessian_inv, double &amp;amp;crt_a, double &amp;amp;crt_b, double &amp;amp;crt_c) #{ MphNR &amp;lt;- function(func_name = &amp;quot;R&amp;quot;, max_iter, max_prec, eval, X, Y, Hi_all, xHi_all, Hiy_all, V_g, V_e){ n_size &amp;lt;- length(eval) c_size &amp;lt;- nrow(X) d_size &amp;lt;- nrow(Y) dc_size &amp;lt;- d_size * c_size v_size &amp;lt;- d_size * (d_size + 1) / 2 XXt &amp;lt;- X %*% t(X) log(det(XXt)) -&amp;gt; lndetXXt if (func_name == &amp;quot;R&amp;quot;){ logl_const &amp;lt;- - 0.</description>
+    </item>
+    
+    <item>
+      <title>Deciphering GEMMA’s C&#43;&#43; Code</title>
+      <link>/post/2017/07/04/deciphering-gemma-s-c-code/</link>
+      <pubDate>Tue, 04 Jul 2017 10:13:51 +0000</pubDate>
+      
+      <guid>/post/2017/07/04/deciphering-gemma-s-c-code/</guid>
+      <description>library(knitr) opts_chunk$set(eval = FALSE) My goal is to translate the C++ code in GEMMA/src/mvlmm.cpp to mathematical notation and, ultimately, to R code. Zhou’s C++ code uses the gsl C++ library.
+CalcXHiY C++ code Let’s examine the function CalcXHiY which runs from line 357-384 of mvlmm.cpp. I reproduce them here:
+void CalcXHiY(const gsl_vector *eval, const gsl_vector *D_l, const gsl_matrix *X, const gsl_matrix *UltVehiY, gsl_vector *xHiy) { size_t n_size=eval-&amp;gt;size, c_size=X-&amp;gt;size1, d_size=D_l-&amp;gt;size; gsl_vector_set_zero (xHiy); double x, delta, dl, y, d; for (size_t i=0; i&amp;lt;d_size; i++) { dl=gsl_vector_get(D_l, i); for (size_t j=0; j&amp;lt;c_size; j++) { d=0.</description>
+    </item>
+    
+    <item>
+      <title>GEMMA&#39;s EM algorithm implemented in R</title>
+      <link>/post/2017/05/16/gemma-em-in-r/</link>
+      <pubDate>Tue, 16 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2017/05/16/gemma-em-in-r/</guid>
+      <description>I need to estimate variance components for a linear mixed effects model. Specifically, I need to consider the model, from Zhou and Stephens (2014):
+\[Y = BX + G + E\] where \(Y\) is a \(2\) by \(n\) matrix of (possibly correlated) phenotypes (for \(n\) subjects), \(B\) is a \(2\) by \(c\) matrix of allelic effect sizes (where \(c\) denotes the number of alleles per locus), \(X\) is a \(c\) by \(n\) matrix containing genotypes (or genotype probabilities), \(G\) is a \(2\) by \(n\) matrix of random effects and \(E\) is a \(2\) by \(n\) matrix of random errors, which are assumed to be independent of \(G\).</description>
+    </item>
+    
+    <item>
+      <title>Getting started with blogdown</title>
+      <link>/post/2017/05/07/getting-started-with-blogdown/</link>
+      <pubDate>Sun, 07 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2017/05/07/getting-started-with-blogdown/</guid>
+      <description>While browsing the internet, I stumbled upon Rstudio’s new package blogdown. I read posts from Karl Broman and found the the book that the package authors - Yihui Xie and Amber Thomas - freely share.
+One tricky part of setting up the website involved the DNS settings. I bought the site fboehm.us through google domains. While the blogdown book provides instructions for DNS settings for other domain name providers, at the time I set up my site, they hadn’t written instructions for use with google domains.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blogdown on Frederick Boehm&#39;s Professional Website</title>
+    <link>/tags/blogdown/</link>
+    <description>Recent content in Blogdown on Frederick Boehm&#39;s Professional Website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 23 May 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/blogdown/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>A ‘page’ type for blogdown &amp; hugo lithium theme</title>
+      <link>/post/2017/05/23/a-page-type-for-blogdown-hugo-lithium-theme/</link>
+      <pubDate>Tue, 23 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2017/05/23/a-page-type-for-blogdown-hugo-lithium-theme/</guid>
+      <description>I didn’t like the fact that my ‘About’ and ‘Research’ pages included a Disqus section, as I don’t need comments on these materials. I decided to find a way to create pages - which are not blog posts - that don’t have the Disqus section. I’m using, as of right now, Yihui Xie’s hugo lithium theme, with a few small modifications that I’ve documented in my first blog post.
+The Hugo documentation on types is quite good.</description>
+    </item>
+    
+    <item>
+      <title>Getting started with blogdown</title>
+      <link>/post/2017/05/07/getting-started-with-blogdown/</link>
+      <pubDate>Sun, 07 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2017/05/07/getting-started-with-blogdown/</guid>
+      <description>While browsing the internet, I stumbled upon Rstudio’s new package blogdown. I read posts from Karl Broman and found the the book that the package authors - Yihui Xie and Amber Thomas - freely share.
+One tricky part of setting up the website involved the DNS settings. I bought the site fboehm.us through google domains. While the blogdown book provides instructions for DNS settings for other domain name providers, at the time I set up my site, they hadn’t written instructions for use with google domains.</description>
+    </item>
+    
+  </channel>
+</rss>

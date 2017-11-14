@@ -1,0 +1,28 @@
+---
+title: GEMMA's EM algorithm implemented in R
+author: Frederick Boehm
+date: '2017-05-16'
+categories:
+  - R
+tags:
+  - R
+  - EM algorithm
+  - Variance components
+  - Genetics
+  - Linear mixed effects models
+slug: gemma-em-in-r
+bibliography: blog.bib
+---
+
+I need to estimate variance components for a linear mixed effects model. Specifically, I need to consider the model, from @zhou2014efficient: 
+
+$$Y = BX + G + E$$ 
+where $Y$ is a $2$ by $n$ matrix of (possibly correlated) phenotypes (for $n$ subjects), $B$ is a $2$ by $c$ matrix of allelic effect sizes (where $c$ denotes the number of alleles per locus), $X$ is a $c$ by $n$ matrix containing genotypes (or genotype probabilities), $G$ is a $2$ by $n$ matrix of random effects and $E$ is a $2$ by $n$ matrix of random errors, which are assumed to be independent of $G$. We specify the distributions of $G$ and $E$:
+
+$$E \sim MN(0, V_e, D_k)$$ and $$G \sim MN(0, V_g, I_n)$$
+
+where $MN$ denotes a matrix-variate normal distribution with mean, row covariance matrix (2 by 2) and column covariance matrix (n by n).
+
+
+## References
+

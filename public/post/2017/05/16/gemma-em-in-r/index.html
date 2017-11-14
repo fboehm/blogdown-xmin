@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GEMMA&#39;s EM algorithm implemented in R | Frederick Boehm&#39;s Professional Website</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/about/">About</a></li>
+      
+      <li><a href="/categories/">Categories</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">GEMMA&#39;s EM algorithm implemented in R</span></h1>
+<h2 class="author">Frederick Boehm</h2>
+<h2 class="date">2017/05/16</h2>
+</div>
+
+<main>
+<p>I need to estimate variance components for a linear mixed effects model. Specifically, I need to consider the model, from <span class="citation">Zhou and Stephens (2014)</span>:</p>
+<p><span class="math display">\[Y = BX + G + E\]</span> where <span class="math inline">\(Y\)</span> is a <span class="math inline">\(2\)</span> by <span class="math inline">\(n\)</span> matrix of (possibly correlated) phenotypes (for <span class="math inline">\(n\)</span> subjects), <span class="math inline">\(B\)</span> is a <span class="math inline">\(2\)</span> by <span class="math inline">\(c\)</span> matrix of allelic effect sizes (where <span class="math inline">\(c\)</span> denotes the number of alleles per locus), <span class="math inline">\(X\)</span> is a <span class="math inline">\(c\)</span> by <span class="math inline">\(n\)</span> matrix containing genotypes (or genotype probabilities), <span class="math inline">\(G\)</span> is a <span class="math inline">\(2\)</span> by <span class="math inline">\(n\)</span> matrix of random effects and <span class="math inline">\(E\)</span> is a <span class="math inline">\(2\)</span> by <span class="math inline">\(n\)</span> matrix of random errors, which are assumed to be independent of <span class="math inline">\(G\)</span>. We specify the distributions of <span class="math inline">\(G\)</span> and <span class="math inline">\(E\)</span>:</p>
+<p><span class="math display">\[E \sim MN(0, V_e, D_k)\]</span> and <span class="math display">\[G \sim MN(0, V_g, I_n)\]</span></p>
+<p>where <span class="math inline">\(MN\)</span> denotes a matrix-variate normal distribution with mean, row covariance matrix (2 by 2) and column covariance matrix (n by n).</p>
+<div id="references" class="section level2 unnumbered">
+<h2>References</h2>
+<div id="refs" class="references">
+<div id="ref-zhou2014efficient">
+<p>Zhou, Xiang, and Matthew Stephens. 2014. “Efficient Multivariate Linear Mixed Model Algorithms for Genome-Wide Association Studies.” <em>Nature Methods</em> 11 (4). <a href="http://www.nature.com/nmeth/journal/v11/n4/abs/nmeth.2848.html" class="uri">http://www.nature.com/nmeth/journal/v11/n4/abs/nmeth.2848.html</a>; Nature Research: 407–9.</p>
+</div>
+</div>
+</div>
+
+</main>
+
+  <footer>
+  <script src="//yihui.name/js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+<script async src="//yihui.name/js/center-img.js"></script>
+
+  
+  <hr/>
+  &copy; <a href="https://fboehm.us">Frederick Boehm</a> 2017 | <a href="https://github.com/fboehm">Github</a> | <a href="https://twitter.com/fredboehm128">Twitter</a>
+  
+  </footer>
+  </body>
+</html>
+

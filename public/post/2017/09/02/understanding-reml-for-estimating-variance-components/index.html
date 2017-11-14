@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Understanding REML for estimating variance components | Frederick Boehm&#39;s Professional Website</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/about/">About</a></li>
+      
+      <li><a href="/categories/">Categories</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Understanding REML for estimating variance components</span></h1>
+<h2 class="author">Frederick Boehm</h2>
+<h2 class="date">2017/09/02</h2>
+</div>
+
+<main>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>I used much of the summer of 2017 to study linear mixed effects models. I’m writing this blog post to document my experience. Perhaps readers will find it useful in designing their study plans for mixed models.</p>
+<p>I found particularly useful Sections 8.4 and 8.5 of <span class="citation">Wakefield (2013)</span>. The author describes in detail a general framework for linear mixed models before venturing into likelihood-based inference for these models. Particularly appealing to me, and differing from works of many others, is the emphasis of <span class="citation">Wakefield (2013)</span> on being explicit about conditioning. For instance, in page on 359, he describes a two-stage linear mixed model (LMM) by stating that the first stage involves a response model that is <em>conditional</em> on the random effects. I can’t recall other authors whose notation and language so clearly explained this and other instances of conditioning in discussions of LMMs.</p>
+</div>
+<div id="reml-estimation-for-variance-components" class="section level2">
+<h2>REML Estimation for Variance Components</h2>
+<p>In section 8.5.3 <span class="citation">Wakefield (2013)</span> introduces residual maximum likelihood (REML) methods for inference of variance components. I particularly like how the author uses marginal likelihood to explain REML. The derivation culminates in the log residual likelihood equation on page 371. It explains why the log residual likelihood function has the form that it has. Below, <span class="math inline">\(U\)</span> is the rotated <span class="math inline">\(Y\)</span> matrix, while <span class="math inline">\(\alpha\)</span> is the vector of variance components.</p>
+<p><span class="math display">\[p(U | \alpha) = c \frac{|x^Tx|^{\frac{1}{2}}|V|^{- \frac{1}{2}}}{|x^TV^{-1}x|^{\frac{1}{2}}}\exp\left(-\frac{1}{2} (y - x\hat\beta)^TV^{-1}(y - x\hat\beta) \right)\]</span> Discarding the constant terms - <span class="math inline">\(c\)</span> and <span class="math inline">\(|x^Tx|^{\frac{1}{2}}\)</span> - we get the restricted log likelihood for inference of the variance components <span class="math inline">\(\alpha\)</span>:</p>
+<p><span class="math display">\[l_{Residual}(\alpha) = - \frac{1}{2}\log |x^TV^{-1}x| - \frac{1}{2} \log |V| - \frac{1}{2}(y - x\hat \beta)V^{-1}(y - x\hat\beta)\]</span></p>
+</div>
+<div id="literature-cited" class="section level2 unnumbered">
+<h2>Literature cited</h2>
+<div id="refs" class="references">
+<div id="ref-wakefield2013bayesian">
+<p>Wakefield, Jon. 2013. <em>Bayesian and Frequentist Regression Methods</em>. Springer Science &amp; Business Media.</p>
+</div>
+</div>
+</div>
+
+</main>
+
+  <footer>
+  <script src="//yihui.name/js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+<script async src="//yihui.name/js/center-img.js"></script>
+
+  
+  <hr/>
+  &copy; <a href="https://fboehm.us">Frederick Boehm</a> 2017 | <a href="https://github.com/fboehm">Github</a> | <a href="https://twitter.com/fredboehm128">Twitter</a>
+  
+  </footer>
+  </body>
+</html>
+

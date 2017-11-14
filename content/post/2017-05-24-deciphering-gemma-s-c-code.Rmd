@@ -1,0 +1,1302 @@
+---
+title: Deciphering GEMMA’s C++ Code
+author: Frederick Boehm
+date: '`r lubridate::now()`'
+slug: deciphering-gemma-s-c-code
+categories:
+  - Computing
+tags:
+  - Genetics
+  - EM algorithm
+  - Linear mixed effects models
+  - Variance components
+  - R
+---
+
+```{r}
+library(knitr)
+opts_chunk$set(eval = FALSE)
+```
+
+
+My goal is to  translate the C++ code in [`GEMMA/src/mvlmm.cpp`](https://github.com/xiangzhou/GEMMA/blob/master/src/mvlmm.cpp) to mathematical notation and, ultimately, to R code. Zhou's C++ code uses the gsl C++ library. 
+
+
+## `CalcXHiY` C++ code
+
+Let's examine the function `CalcXHiY` which runs from line [357-384](https://github.com/xiangzhou/GEMMA/blob/793ba025de8e71b49e738613e8dd9bbdd06389d4/src/mvlmm.cpp#L357-L384) of `mvlmm.cpp`. I reproduce them here:
+
+```{Rcpp, eval = FALSE}
+void CalcXHiY(const gsl_vector *eval, const gsl_vector *D_l, const gsl_matrix *X, const gsl_matrix *UltVehiY, gsl_vector *xHiy)
+{
+	size_t n_size=eval->size, c_size=X->size1, d_size=D_l->size;
+
+	gsl_vector_set_zero (xHiy);
+
+	double x, delta, dl, y, d;
+	for (size_t i=0; i<d_size; i++) {
+		dl=gsl_vector_get(D_l, i);
+		for (size_t j=0; j<c_size; j++) {
+			d=0.0;
+			for (size_t k=0; k<n_size; k++) {
+				x=gsl_matrix_get(X, j, k);
+				y=gsl_matrix_get(UltVehiY, i, k);
+				delta=gsl_vector_get(eval, k);
+				d+=x*y/(delta*dl+1.0);
+			}
+			gsl_vector_set(xHiy, j*d_size+i, d);
+		}
+	}
+	/*
+	cout<<"xHiy: "<<endl;
+	for (size_t i=0; i<(d_size*c_size); i++) {
+		cout<<gsl_vector_get(xHiy, i)<<endl;
+	}
+	 */
+	return;
+}
+
+```
+
+We see that Zhou uses four gsl functions repeatedly:
+
+1. `gsl_matrix_get`
+2. `gsl_matrix_set`
+3. `gsl_vector_set`
+4. `gsl_vector_get`
+
+From reading the documentation for these four functions - [here](https://www.gnu.org/software/gsl/manual/html_node/Accessing-matrix-elements.html) and [here](https://www.gnu.org/software/gsl/manual/html_node/Accessing-vector-elements.html) - my understanding is that the functions whose names end in `get` return a subset of an existing matrix or vector. For instance, the line from above:
+
+```{Rcpp, eval = FALSE}
+dl=gsl_vector_get(D_l, i);
+```
+
+assigns to `dl` the $i^{th}$ element of the vector `D_l`.
+
+The functions that end in `set` assign a value to a given element of a matrix or vector. `gsl_vector_set` requires 3 arguments, since we need to know the name of the vector, which element is to be replaced, and the value to insert at the position of replacement. 
+
+```{rcpp, eval = FALSE}
+gsl_vector_set(xHiy, j*d_size+i, d);
+```
+
+The code immediately above means that the value `d` is inserted into vector `xHiy` at position `j*d_size+i`. 
+
+[One of the first lines](https://github.com/xiangzhou/GEMMA/blob/793ba025de8e71b49e738613e8dd9bbdd06389d4/src/mvlmm.cpp#L361) in the function creates the vector `xHiy` and sets all of its entries to zero:
+
+```{rcpp, eval = FALSE}
+gsl_vector_set_zero (xHiy);
+```
+
+The line 
+
+```{rcpp, eval = FALSE}
+x=gsl_matrix_get(X, j, k);
+```
+
+assigns to the value `x` the $(j, k)^{th}$ element of matrix X. 
+
+
+```{rcpp, eval = FALSE}
+y=gsl_matrix_get(UltVehiY, i, k);
+```
+
+assigns to `y` the $(i, k)^{th}$ element of `UltVehiY`. 
+
+Presumably `eval` is Zhou's abbreviation of eigenvalues. `d` then is the $k^{th}$ eigenvalue from the decomposition of the kinship matrix.
+
+`x*y`, refers to the product of two numbers. 
+
+```{rcpp, eval = FALSE}
+d+=x*y/(delta*dl+1.0);
+```
+
+defines `d` to be the sum of the current value of `d` and `x*y/(delta*dl+1.0)`. In R, we would write this as:
+
+```{r, eval = FALSE}
+d <- d + x * y / (delta * dl + 1)
+```
+
+Note that each time we restart the loop over `k` we reset the value of `d` to zero. Note also that `1.0` is the value of every eigenvalue of the identity matrix. 
+
+The use of `1.0` rather than merely `1` seems peculiar to me - I'm new to C++. I imagine that `1` and `1.0` might be stored differently, which might justify the use of `1.0` over `1`. 
+
+Since we're looping over `k`, it's as if we're taking the inner (dot) product of two vectors and defining it to be the number `d` (after the looping over k).
+
+### R code for calc_XHiY
+
+```{r}
+```
+
+
+
+
+
+
+## `EigenProc`
+
+I want to understand the function `EigenProc`, which occupies [lines 215-307](https://github.com/xiangzhou/GEMMA/blob/0885df136fcbe42b1665998f293953cfe8d216c6/src/mvlmm.cpp#L215-L307) of `mvlmm.cpp`.
+
+The first several lines allocate matrices with dimension `d_size` by `d_size`.
+
+The function `gsl_matrix_memcpy` is used on line 228 to copy the contents of matrix `V_e` to matrix `V_e_temp`, according to the [documentation](https://www.gnu.org/software/gsl/manual/html_node/Copying-matrices.html). Note that `V_e` is an input to the function, while `V_e_temp` is defined as a `d_size` by `d_size` matrix in line 222. 
+
+Looking at the first line of the function, it seems peculiar to me that some of the `gsl_matrix` terms are preceded by `const`. What does this mean? [This documentation](https://www.gnu.org/software/gsl/manual/html_node/Matrix-views.html) may answer my question.
+
+By searching the repository, I see that the function `EigenDecomp` is in lapack.h. But I'm struggling to find documentation for the actual function. It looks like LAPACK is written in Fortran90, according to [Wikipedia](https://en.wikipedia.org/wiki/LAPACK).
+
+I now see that the file lapack.cpp contains the code for the function `EigenDecomp`. See the full code [here](https://github.com/xiangzhou/GEMMA/blob/0885df136fcbe42b1665998f293953cfe8d216c6/src/lapack.cpp#L296-L379). It's interesting that there are two functions with the same name. They differ in use of 'float' objects. For the `EigenDecomp` without floats, we see that, when using LAPACK, the function `lapack_eigen_decomp` is used. `lapack_eigen_decomp` is defined starting at line 234 of lapack.cpp. Zhou's comment tells us that the first input is 'destroyed', i.e., over-written, when the function runs.
+
+### R code for eigen_proc
+
+```{r}
+```
+
+
+
+
+
+## `CalcQi`
+
+Zhou's [comment](https://github.com/xiangzhou/GEMMA/blob/338bf7b7db8805515597d9e2d4b5dcbe2e40dfd1/src/mvlmm.cpp#L309) tells us that 
+
+$$Qi=(\sum_{k=1}^n x_kx_k^T\otimes(delta_k*Dl+I)^{-1} )^{-1}$$
+
+In examining the code for `CalcQi`, we see that he first calculates the entries for the matrix `Q`. Part of the code is [here](https://github.com/xiangzhou/GEMMA/blob/338bf7b7db8805515597d9e2d4b5dcbe2e40dfd1/src/mvlmm.cpp#L328-L333). He also uses the symmetry of `Q` to do only the needed calculations. The number `d` that gets entered into `Q` is related to the inner product of two rows of the `X` matrix, except that each term in the sum (ie, inner product) has a distinct weight; namely, $Dl * \delta_k+ 1$, where $\delta_k$ differs for each component of the inner product.
+
+After calculating all entries for matrix `Q`, he calls three distinct functions in the code [here](https://github.com/xiangzhou/GEMMA/blob/338bf7b7db8805515597d9e2d4b5dcbe2e40dfd1/src/mvlmm.cpp#L345-L348).
+
+`LUDecomp` is defined in [lapack.cpp](https://github.com/xiangzhou/GEMMA/blob/03d7d2556a9284dc0ac3e155b5c9a8d69b1b21ee/src/lapack.cpp#L464-L468). 
+
+We see that it calls the function `gsl_linalg_LU_decomp`, which is [part of the GSL library](https://www.gnu.org/software/gsl/manual/html_node/LU-Decomposition.html). It takes 3 arguments: a matrix, a permutation (matrix), and an integer. Note the structure of the output:
+
+> These functions factorize the square matrix A into the LU decomposition PA = LU. On output the diagonal and upper triangular part of the input matrix A contain the matrix U. The lower triangular part of the input matrix (excluding the diagonal) contains L. The diagonal elements of L are unity, and are not stored.
+
+The [LU Decomposition wikipedia page](https://en.wikipedia.org/wiki/LU_decomposition) is informative.
+
+Note that the output of `LUDecomp` is stored as `Q`. 
+
+We then proceed to a line with [`LUInvert`](https://github.com/xiangzhou/GEMMA/blob/338bf7b7db8805515597d9e2d4b5dcbe2e40dfd1/src/mvlmm.cpp#L346). `Q`, ie, the output of `LUDecomp`, is passed to `LUInvert`. What are the arguments to `LUInvert`?
+
+The [key line](https://github.com/xiangzhou/GEMMA/blob/03d7d2556a9284dc0ac3e155b5c9a8d69b1b21ee/src/lapack.cpp#L500) in `LUInvert` is a call to the GSL function `gsl_linalg_LU_invert`. Checking the [documentation for `gsl_linalg_LU_invert`](https://www.gnu.org/software/gsl/manual/html_node/LU-Decomposition.html), we see that 
+
+> These functions compute the inverse of a matrix A from its LU decomposition (LU,p), storing the result in the matrix inverse. The inverse is computed by solving the system A x = b for each column of the identity matrix. It is preferable to avoid direct use of the inverse whenever possible, as the linear solver functions can obtain the same result more efficiently and reliably (consult any introductory textbook on numerical linear algebra for details).
+
+The matrix inverse gets passed to the function [`LULndet`](https://github.com/xiangzhou/GEMMA/blob/338bf7b7db8805515597d9e2d4b5dcbe2e40dfd1/src/mvlmm.cpp#L348), which is defined in the file [lapack.cpp](https://github.com/xiangzhou/GEMMA/blob/03d7d2556a9284dc0ac3e155b5c9a8d69b1b21ee/src/lapack.cpp#L533-L538)
+
+The key line is that containing a call to the function `gsl_linalg_LU_lndet`. We find documentation of the function [here](https://www.gnu.org/software/gsl/manual/html_node/LU-Decomposition.html).
+
+Lines to free the memory complete the function.
+
+### calc_qi R code
+
+```{r}
+```
+
+
+
+
+
+
+
+## `CalcOmega`
+
+[Lines](https://github.com/xiangzhou/GEMMA/blob/338bf7b7db8805515597d9e2d4b5dcbe2e40dfd1/src/mvlmm.cpp#L389-L408) of mvlmm.cpp contain code for `CalcOmega`.
+
+They define the matrices `OmegaU` and `OmegaE`. Note that the two omega matrices differ by a multiplicative factor.
+
+### calc_omega R code
+
+```{r, eval = TRUE}
+```
+
+
+
+
+
+
+
+## `UpdateU`
+
+[`UpdateU`](https://github.com/xiangzhou/GEMMA/blob/338bf7b7db8805515597d9e2d4b5dcbe2e40dfd1/src/mvlmm.cpp#L411-L418) is defined in `mvlmm.cpp`.
+
+`gsl_matrix_sub` is a matrix subtraction, in which the second argument is subtracted from the first argument and stored as the first argument. See the documentation [here](https://www.gnu.org/software/gsl/manual/html_node/Matrix-operations.html)
+
+The last line of `UpdateU` contains a call to [`gsl_matrix_mul_elements`](https://github.com/xiangzhou/GEMMA/blob/338bf7b7db8805515597d9e2d4b5dcbe2e40dfd1/src/mvlmm.cpp#L416), which is element-wise multiplication of matrices:
+
+> This function multiplies the elements of matrix a by the elements of matrix b. The result a(i,j) \leftarrow a(i,j) * b(i,j) is stored in a and b remains unchanged. The two matrices must have the same dimensions.
+
+### R Code for update_u
+
+```{r}
+
+```
+
+
+
+
+
+## `UpdateE`
+
+`UpdateE` is the [next function defined in mvlmm.cpp](https://github.com/xiangzhou/GEMMA/blob/338bf7b7db8805515597d9e2d4b5dcbe2e40dfd1/src/mvlmm.cpp#L421-L428). 
+
+First, note that `gsl_matrix_memcpy` copies the second argument's elements to the first input's elements. So, `gsl_matrix_memcpy(A, B)` assigns A to be a copy of B. Note that Zhou uses this function when he knows that subsequent steps will overwrite the matrix B, but B needs to be preserved.
+
+### R code for update_e
+
+```{r}
+```
+
+
+
+## `UpdateL_B`
+
+`UpdateL_B` is a [slightly longer function than the previous update functions.](https://github.com/xiangzhou/GEMMA/blob/338bf7b7db8805515597d9e2d4b5dcbe2e40dfd1/src/mvlmm.cpp#L432-L447)
+
+I copy its code here:
+
+```{rcpp, eval = FALSE}
+void UpdateL_B (const gsl_matrix *X, const gsl_matrix *XXti, const gsl_matrix *UltVehiY, const gsl_matrix *UltVehiU, gsl_matrix *UltVehiBX, gsl_matrix *UltVehiB)
+{
+	size_t c_size=X->size1, d_size=UltVehiY->size1;
+
+	gsl_matrix *YUX=gsl_matrix_alloc (d_size, c_size);
+
+	gsl_matrix_memcpy (UltVehiBX, UltVehiY);
+	gsl_matrix_sub (UltVehiBX, UltVehiU);
+
+	gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, UltVehiBX, X, 0.0, YUX);
+	gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, YUX, XXti, 0.0, UltVehiB);
+
+	gsl_matrix_free(YUX);
+
+	return;
+}
+```
+
+We see that the code allocates a matrix, `YUX`, with dimensions `d_size` by `c_size`. It then copies input `UltVehiY` to matrix `UltVehiBX` before overwriting `UltVehiBX` by `UltVehiBX - UltVehiU`. Next are two calls to the function `gsl_blas_dgemm`. We need to think about what these calls do.
+
+The [documentation](https://www.gnu.org/software/gsl/manual/html_node/Level-3-GSL-BLAS-Interface.html) tells us that `gsl_blas_dgemm` is one of a family of functions that computes a matrix multiplication. 
+
+> These functions compute the matrix-matrix product and sum C = \alpha op(A) op(B) + \beta C where op(A) = A, A^T, A^H for TransA = CblasNoTrans, CblasTrans, CblasConjTrans and similarly for the parameter TransB.
+
+> Function: int gsl_blas_dgemm (CBLAS_TRANSPOSE_t TransA, CBLAS_TRANSPOSE_t TransB, double alpha, const gsl_matrix * A, const gsl_matrix * B, double beta, gsl_matrix * C)
+
+Thus the line `gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, UltVehiBX, X, 0.0, YUX);` calculates the product `UltVehiBX * t(X)` where t(X) denotes the transpose of X and `*` denotes matrix multiplication, since the value of `beta` here is 0.0 (and `alpha` is 1.0). The result is stored as `YUX`.
+
+Finally, we calculate the matrix product `YUX * XXti` and stored it as `UltVehiB`.
+
+
+
+
+## `UpdateRL_B`
+
+```{rcpp, eval = FALSE}
+void UpdateRL_B (const gsl_vector *xHiy, const gsl_matrix *Qi, gsl_matrix *UltVehiB)
+{
+	size_t d_size=UltVehiB->size1, c_size=UltVehiB->size2, dc_size=Qi->size1;
+
+	gsl_vector *b=gsl_vector_alloc (dc_size);
+
+	//calculate b=Qiv
+	gsl_blas_dgemv(CblasNoTrans, 1.0, Qi, xHiy, 0.0, b);
+
+	//copy b to UltVehiB
+	for (size_t i=0; i<c_size; i++) {
+		gsl_vector_view UltVehiB_col=gsl_matrix_column (UltVehiB, i);
+		gsl_vector_const_view b_subcol=gsl_vector_const_subvector (b, i*d_size, d_size);
+		gsl_vector_memcpy (&UltVehiB_col.vector, &b_subcol.vector);
+	}
+
+	gsl_vector_free(b);
+
+	return;
+}
+```
+
+The line `gsl_blas_dgemv(CblasNoTrans, 1.0, Qi, xHiy, 0.0, b);` uses the function `gsl_blas_dgemv`, which is documented [here](https://www.gnu.org/software/gsl/manual/html_node/Level-2-GSL-BLAS-Interface.html).
+
+> Function: int gsl_blas_dgemv (CBLAS_TRANSPOSE_t TransA, double alpha, const gsl_matrix * A, const gsl_vector * x, double beta, gsl_vector * y)
+
+> These functions compute the matrix-vector product and sum y = \alpha op(A) x + \beta y, where op(A) = A, A^T, A^H for TransA = CblasNoTrans, CblasTrans, CblasConjTrans.
+
+The line of code thus means that we calculate `Qi * xHiy` and store the result as `b`. Note that both `Qi` and `xHiy` are inputs to this function. 
+
+Let's examine the code within the loop. 
+
+`gsl_matrix_column` is documented [here](https://www.gnu.org/software/gsl/manual/html_node/Creating-row-and-column-views.html). 
+
+> Function: gsl_vector_view gsl_matrix_column (gsl_matrix * m, size_t j)
+
+> These functions return a vector view of the j-th column of the matrix m. The data pointer of the new vector is set to null if j is out of range.
+
+> The function gsl_vector_const_column is equivalent to gsl_matrix_column but can be used for matrices which are declared const.
+
+We see that for each iteration of the loop, we choose a column from `UltVehiB`, ie, we choose the $i^{th}$ column, and assign it to the object `UltVehiB_col`.
+
+The function is documented [here](https://www.gnu.org/software/gsl/manual/html_node/Vector-views.html). 
+
+> Function: gsl_vector_const_view gsl_vector_const_subvector (const gsl_vector * v, size_t offset, size_t n)
+
+> These functions return a vector view of a subvector of another vector v. The start of the new vector is offset by offset elements from the start of the original vector. The new vector has n elements. Mathematically, the i-th element of the new vector v’ is given by,
+
+> v'(i) = v->data[(offset + i)*v->stride]
+> where the index i runs from 0 to n-1.
+
+> The data pointer of the returned vector struct is set to null if the combined parameters (offset,n) overrun the end of the original vector.
+
+> The new vector is only a view of the block underlying the original vector, v. The block containing the elements of v is not owned by the new vector. When the view goes out of scope the original vector v and its block will continue to exist. The original memory can only be deallocated by freeing the original vector. Of course, the original vector should not be deallocated while the view is still in use.
+
+> The function gsl_vector_const_subvector is equivalent to gsl_vector_subvector but can be used for vectors which are declared const.
+
+Together, the lines contained in the `for` loop serve to copy the elements of the vector `b` into the matrix `UltVehiB`, where each element of `b` is entered exactly once into `UltVehiB`.
+
+### R code for updateRL_B
+
+
+```{r}
+```
+
+
+
+
+
+## `UpdateV`
+
+This function serves to update both `Ve` and `Vg`. 
+
+```{rcpp, eval = FALSE}
+void UpdateV (const gsl_vector *eval, const gsl_matrix *U, const gsl_matrix *E, const gsl_matrix *Sigma_uu, const gsl_matrix *Sigma_ee, gsl_matrix *V_g, gsl_matrix *V_e)
+{
+	size_t n_size=eval->size, d_size=U->size1;
+
+	gsl_matrix_set_zero (V_g);
+	gsl_matrix_set_zero (V_e);
+
+	double delta;
+
+	//calculate the first part: UD^{-1}U^T and EE^T
+	for (size_t k=0; k<n_size; k++) {
+		delta=gsl_vector_get (eval, k);
+		if (delta==0) {continue;}
+
+		gsl_vector_const_view U_col=gsl_matrix_const_column (U, k);
+		gsl_blas_dsyr (CblasUpper, 1.0/delta, &U_col.vector, V_g);
+	}
+
+	gsl_blas_dsyrk(CblasUpper, CblasNoTrans, 1.0, E, 0.0, V_e);
+
+	//copy the upper part to lower part
+	for (size_t i=0; i<d_size; i++) {
+		for (size_t j=0; j<i; j++) {
+			gsl_matrix_set (V_g, i, j, gsl_matrix_get(V_g, j, i));
+			gsl_matrix_set (V_e, i, j, gsl_matrix_get(V_e, j, i));
+		}
+	}
+
+	//add Sigma
+	gsl_matrix_add (V_g, Sigma_uu);
+	gsl_matrix_add (V_e, Sigma_ee);
+
+	//scale by 1/n
+	gsl_matrix_scale (V_g, 1.0/(double)n_size);
+	gsl_matrix_scale (V_e, 1.0/(double)n_size);
+
+	return;
+}
+```
+
+We first set to matrices of zeros the objects `Vg` and `Ve`.
+
+The function `gsl_blas_dsyr` is used in the `for` loop over `k`. We need to look at its purpose.
+
+> Function: int gsl_blas_dsyr (CBLAS_UPLO_t Uplo, double alpha, const gsl_vector * x, gsl_matrix * A)
+> These functions compute the symmetric rank-1 update A = \alpha x x^T + A of the symmetric matrix A. Since the matrix A is symmetric only its upper half or lower half need to be stored. When Uplo is CblasUpper then the upper triangle and diagonal of A are used, and when Uplo is CblasLower then the lower triangle and diagonal of A are used.
+
+The line `gsl_blas_dsyr (CblasUpper, 1.0/delta, &U_col.vector, V_g);` thus tells us to use the upper portion of the `V_g` matrix (and the diagonal) and to add to (the current value of) `V_g` the matrix formed by the (matrix multiplication) product of a column of U with its transpose, with each entry of Ucolumn t(Ucolumn) divided by delta. Note that `delta` is the $k^{th}$ eigenvalue, so it changes with it iteration of the `for` loop.
+
+After completing the `for` loop over `k`, we have the line with the function: `gsl_blas_dsyrk`. This function is documented [here](https://www.gnu.org/software/gsl/manual/html_node/Level-3-GSL-BLAS-Interface.html). 
+
+> Function: int gsl_blas_dsyrk (CBLAS_UPLO_t Uplo, CBLAS_TRANSPOSE_t Trans, double alpha, const gsl_matrix * A, double beta, gsl_matrix * C)
+
+> These functions compute a rank-k update of the symmetric matrix C, C = \alpha A A^T + \beta C when Trans is CblasNoTrans and C = \alpha A^T A + \beta C when Trans is CblasTrans. Since the matrix C is symmetric only its upper half or lower half need to be stored. When Uplo is CblasUpper then the upper triangle and diagonal of C are used, and when Uplo is CblasLower then the lower triangle and diagonal of C are used.
+
+Thus, we interpret the line `gsl_blas_dsyrk(CblasUpper, CblasNoTrans, 1.0, E, 0.0, V_e);
+` to be calculating the matrix $EE^T$ and assigning it to the value `V_e`.
+
+`gsl_matrix_add` is for addition of two matrices, where the first input is overwritten by the sum.
+
+> Function: int gsl_matrix_add (gsl_matrix * a, const gsl_matrix * b)
+> This function adds the elements of matrix b to the elements of matrix a. The result a(i,j) \leftarrow a(i,j) + b(i,j) is stored in a and b remains unchanged. The two matrices must have the same dimensions.
+
+`gsl_matrix_scale` multiplies each element of a matrix by a scalar. 
+
+Thus, the line
+
+`gsl_matrix_scale (V_g, 1.0/(double)n_size);` 
+
+leads to each entry of `V_g` being divided by `n_size` (with the result stored as the new value of `V_g`).
+
+### R code for update_v
+
+```{r}
+```
+
+
+
+
+
+## `CalcSigma`
+
+Our next function to consider is [`CalcSigma`](https://github.com/xiangzhou/GEMMA/blob/5252c296a389f296e97d95e56f13b77351b32bec/src/mvlmm.cpp#L512-L579).
+
+```{rcpp, eval = FALSE}
+void CalcSigma (const char func_name, const gsl_vector *eval, const gsl_vector *D_l, const gsl_matrix *X, const gsl_matrix *OmegaU, const gsl_matrix *OmegaE, const gsl_matrix *UltVeh, const gsl_matrix *Qi, gsl_matrix *Sigma_uu, gsl_matrix *Sigma_ee)
+
+```
+
+
+
+First, `Sigma_uu` and `Sigma_ee` are set to be matrices with all zeros.
+
+`gsl_matrix_diagonal` is used to get the diagonal entries of the matrices.
+
+> Function: gsl_vector_view gsl_matrix_diagonal (gsl_matrix * m)
+Function: gsl_vector_const_view gsl_matrix_const_diagonal (const gsl_matrix * m)
+These functions return a vector view of the diagonal of the matrix m. The matrix m is not required to be square. For a rectangular matrix the length of the diagonal is the same as the smaller dimension of the matrix.
+
+> The function gsl_matrix_const_diagonal is equivalent to gsl_matrix_diagonal but can be used for matrices which are declared const.
+
+`Suu_diag.vector`, after the `for` loop over `k`, ends up containing the sum of the diagonal of `Sigma_uu` and the sum of the columns of `OmegaU`.
+
+For now, I'll skip the [section of code that's labeled "calculate the second term for reml"](https://github.com/xiangzhou/GEMMA/blob/5252c296a389f296e97d95e56f13b77351b32bec/src/mvlmm.cpp#L536-L567).
+
+
+We then have [four matrix multiplication operations](https://github.com/xiangzhou/GEMMA/blob/5252c296a389f296e97d95e56f13b77351b32bec/src/mvlmm.cpp#L572-L575) to complete the function definition.
+
+### R code for calc_sigma
+
+```{r}
+```
+
+
+## `MphCalcLogL`
+
+```{rcpp, eval = FALSE}
+double MphCalcLogL (const gsl_vector *eval, const gsl_vector *xHiy, const gsl_vector *D_l, const gsl_matrix *UltVehiY, const gsl_matrix *Qi)
+{
+	size_t n_size=eval->size, d_size=D_l->size, dc_size=Qi->size1;
+	double logl=0.0, delta, dl, y, d;
+
+	//calculate yHiy+log|H_k|
+	for (size_t k=0; k<n_size; k++) {
+		delta=gsl_vector_get(eval, k);
+		for (size_t i=0; i<d_size; i++) {
+			y=gsl_matrix_get(UltVehiY, i, k);
+			dl=gsl_vector_get(D_l, i);
+			d=delta*dl+1.0;
+
+			logl+=y*y/d+log(d);
+		}
+	}
+
+	//calculate the rest of yPxy
+	gsl_vector *Qiv=gsl_vector_alloc(dc_size);
+
+	gsl_blas_dgemv(CblasNoTrans, 1.0, Qi, xHiy, 0.0, Qiv);
+	gsl_blas_ddot(xHiy, Qiv, &d);
+
+	logl-=d;
+
+	gsl_vector_free(Qiv);
+
+	return -0.5*logl;
+}
+```
+
+
+
+## `MphEM`
+
+The first line is:
+
+```{rcpp, eval = FALSE}
+double MphEM (const char func_name, const size_t max_iter, const double max_prec, const gsl_vector *eval, const gsl_matrix *X, const gsl_matrix *Y, gsl_matrix *U_hat, gsl_matrix *E_hat, gsl_matrix *OmegaU, gsl_matrix *OmegaE, gsl_matrix *UltVehiY, gsl_matrix *UltVehiBX, gsl_matrix *UltVehiU, gsl_matrix *UltVehiE, gsl_matrix *V_g, gsl_matrix *V_e, gsl_matrix *B)
+```
+
+
+
+
+The [function `MphEM`](https://github.com/xiangzhou/GEMMA/blob/5252c296a389f296e97d95e56f13b77351b32bec/src/mvlmm.cpp#L621-L743) contains [a comment "start EM"](https://github.com/xiangzhou/GEMMA/blob/5252c296a389f296e97d95e56f13b77351b32bec/src/mvlmm.cpp#L661). 
+
+The [first calculations](https://github.com/xiangzhou/GEMMA/blob/5252c296a389f296e97d95e56f13b77351b32bec/src/mvlmm.cpp#L644) use the function `gsl_blas_dsyrk`. As we explained above, this function 
+
+Thus, the line 
+
+```{rcpp, eval = FALSE}
+gsl_blas_dsyrk (CblasUpper, CblasNoTrans, 1.0, X, 0.0, XXt);
+```
+
+Since beta is 0.0, we are actually calculating 
+
+$$XXt = 1.0 X X^T$$, i.e., we are defining `XXt` to be the matrix product formed by `X` multiplied by its transpose.
+
+The [`for` loop over `i`](https://github.com/xiangzhou/GEMMA/blob/5252c296a389f296e97d95e56f13b77351b32bec/src/mvlmm.cpp#L645-L649) merely completes the (symmetric) matrix `XXt`. Note that this step is needed because the matrix multiplication in `gsl_blas_dsyrk` stores only the upper triangle of matrix `XXt`. For computing the inverse, we'll want the full matrix `XXt`. 
+
+The [next two lines](https://github.com/xiangzhou/GEMMA/blob/5252c296a389f296e97d95e56f13b77351b32bec/src/mvlmm.cpp#L651-L652) compute the LU Decomposition of `XXt` and its inverse. The inverse is stored as `XXti`.
+
+The [subsequent lines](https://github.com/xiangzhou/GEMMA/blob/5252c296a389f296e97d95e56f13b77351b32bec/src/mvlmm.cpp#L655-L659) compute the value of `logl_const`, which differs for REML & ML.
+
+We then reach the comment "start EM" followed by a [`for` loop over `t`](https://github.com/xiangzhou/GEMMA/blob/5252c296a389f296e97d95e56f13b77351b32bec/src/mvlmm.cpp#L661-L728).
+
+
+## A bit of notation
+
+Let's suppose that Zhou's nomenclature appends a `t` to designate transpose and `i` to designate inverse. We see that he uses `V_eh` and `V_ehi`. For a long time, I wondered how he chose the names. I now think that `V_eh` is his notation for $V_e^{\frac{1}{2}}$ - that is, the `h` stands for "half" (as an exponent), while `V_ehi` is $V_e^{- \frac{1}{2}}$, namely, the inverse of `V_eh`.
+
+Similarly, `U_l` is $U_{\lambda}$ and `Ult` is $U_{\lambda}^T$, the transpose of `U_l`.
+
+
+## A note on `size`
+
+Look at [this line](https://github.com/xiangzhou/GEMMA/blob/5252c296a389f296e97d95e56f13b77351b32bec/src/mvlmm.cpp#L359). We see that there is code: `size_t n_size=eval->size, c_size=X->size1, d_size=D_l->size;` Presumably, this means that we're declaring the class of n_size, c_size, and d_size to be size_t. Furthermore, a statement like `n_size=eval->size` means that n_size is the number returned when size operates on eval. It makes sense that there is only one value for size of eval, since eval is a (one-dimensional) vector. Presumably, size might return the number of rows, number of columns, etc, as distinct numbers for the appropriate object, just like `dim` in R. Or, perhaps more accurately, you just need to append size wtih the dimension number... so, we see size1 applied to the X matrix. Hence, when dealing with the X matrix, there is a need to specify which dimension one is examining; thus, the use of `size1`, which, presumably, means the number of rows.
+
+## What is `D_l`?
+
+We know that it's a vector of length `d_size`. I couldn't remember where it is defined; a quick search of the repository took me to the line `EigenDecomp(V_e_temp, U_l, D_l, 0);`. I then had to remind myself what exactly `EigenDecomp` does. It seems that the eigenvalues of V_e_temp are stored in D_l. That is, D_l *is* the vector of eigenvalues from the decomposition of `V_e_temp`. Note that the last of the four entries, `0`, is passed as the value of the large matrix indicator.
+
+Note also that `U_l` is the matrix that contains the eigenvectors.
+
+In other words, `EigenDecomp` "creates" both `U_l` (matrix of eigenvectors for `V_e`) and `D_l` (vector of eigenvalues of `V_e`).
+
+Note also the line: `EigenDecomp(Lambda, U_l, D_l, 0);`. It is line 259 in `EigenProc` and is the latter of the two calls of `EigenDecomp` within the function `EigenDecomp`.
+
+
+
+
+## More on `EigenDecomp`
+
+A single call to `EigenDecomp`, as in `EigenDecomp(Lambda, U_l, D_l, 0);`, yields eigenvectors stored as the matrix `U_l` and eigenvalues in the vector `D_l`. Note that the eigenvalues are not ordered, but they do match the eigenvectors, which are the columns of `U_l`.
+
+Recall that $\Lambda = V_e^{- \frac{1}{2}}V_g V_e^{- \frac{1}{2}}$, which, in Zhou's notation is `Lambda=V_ehi V_g V_ehi`
+
+
+## The logic of `MphEM`
+
+We start with the line that contains the comment "start EM".
+
+For each value of `t`, ie, for each iteration through the `for` loop, we have the following steps:
+
+1. `EigenProc(V_g, V_e, D_l, UltVeh, UltVehi);`
+
+This takes inputs `V_g` and `V_e` and 'creates' `D_l`, `UltVeh`, and `UltVehi`. Plus, by assigning the output of EigenProc to `logdet_Ve`, Zhou stores the returned value. It's interesting to note that `U_l` is *not* a byproduct of this function. Subsequent functions don't use `U_l` directly; instead, they use `UltVeh` and `UltVehi`. 
+
+2. `CalcQi(eval, D_l, X, Qi);`
+
+Remember that, in Zhou's comment, `Qi=(\sum_{k=1}^n x_kx_k^T\otimes(delta_k*Dl+I)^{-1} )^{-1}`.
+
+This function takes as input `eval` - which, I think, is the eigenvalues vector *from* the eigendecomposition of the kinship matrix.
+
+Note that `Qi` is later needed in the call to `CalcSigma`.
+
+I also need to think about *scope* of variables in C++. [Here is a useful resource](https://en.wikibooks.org/wiki/C%2B%2B_Programming/Scope/Examples) 
+
+3. `CalcXHiY(eval, D_l, X, UltVehiY, xHiy);`
+
+Calculates the quantity `xHiy`, which will later be used for calculating `logl_new`
+
+4. `CalcOmega(eval, D_l, OmegaU, OmegaE)`
+
+Recall that, according to Zhou's notation:
+
+`//OmegaU=D_l/(delta Dl+I)^{-1}
+//OmegaE=delta D_l/(delta Dl+I)^{-1}`
+
+
+5. 
+
+
+
+### C++ Code for MphCalcLogL
+
+```{rcpp, eval = FALSE}
+double MphCalcLogL (const gsl_vector *eval, const gsl_vector *xHiy, const gsl_vector *D_l, const gsl_matrix *UltVehiY, const gsl_matrix *Qi)
+{
+size_t n_size=eval->size, d_size=D_l->size, dc_size=Qi->size1;
+	double logl=0.0, delta, dl, y, d;
+
+	//calculate yHiy+log|H_k|
+	for (size_t k=0; k<n_size; k++) {
+		delta=gsl_vector_get(eval, k);
+		for (size_t i=0; i<d_size; i++) {
+			y=gsl_matrix_get(UltVehiY, i, k);
+			dl=gsl_vector_get(D_l, i);
+			d=delta*dl+1.0;
+
+			logl+=y*y/d+log(d);
+		}
+	}
+
+	//calculate the rest of yPxy
+	gsl_vector *Qiv=gsl_vector_alloc(dc_size);
+
+	gsl_blas_dgemv(CblasNoTrans, 1.0, Qi, xHiy, 0.0, Qiv);
+	gsl_blas_ddot(xHiy, Qiv, &d);
+
+	logl-=d;
+
+	gsl_vector_free(Qiv);
+
+	return -0.5*logl;
+}
+```
+
+
+
+### R code for MphCalcLogL
+
+```{r}
+```
+
+
+
+### R code for MphEM
+
+```{r}
+```
+
+### R code for MphInitial
+
+```{r}
+# void MphInitial(const size_t em_iter, const double em_prec, const size_t nr_iter, const double nr_prec, const gsl_vector *eval, const gsl_matrix *X, const gsl_matrix *Y, const double l_min, const double l_max, const size_t n_region, gsl_matrix *V_g, gsl_matrix *V_e, gsl_matrix *B)
+# {
+MphInitial <- function(eval, X, Y){
+  n_size <- length(eval)
+  c_size <- nrow(X)
+  d_size <- nrow(Y)
+  V_g <- matrix(data = 0, nrow = d_size, ncol = d_size)
+  V_e <- V_g
+  B <- matrix(data = 0, nrow = c_size, ncol = d_size)
+  # 	gsl_matrix_set_zero (V_g);
+# 	gsl_matrix_set_zero (V_e);
+# 	gsl_matrix_set_zero (B);
+# 
+# 	size_t n_size=eval->size, c_size=X->size1, d_size=Y->size1;
+# 	double a, b, c;
+# 	double lambda, logl, vg, ve;
+# 
+# 	//Initial the diagonal elements of Vg and Ve using univariate LMM and REML estimates
+# 	gsl_matrix *Xt=gsl_matrix_alloc (n_size, c_size);
+  Xt <- matrix(nrow = n_size, ncol = c_size)
+# 	gsl_vector *beta_temp=gsl_vector_alloc(c_size);
+  beta_temp <- numeric(length = c_size)
+# 	gsl_vector *se_beta_temp=gsl_vector_alloc(c_size);
+  se_beta_temp <- numeric(length = c_size)
+
+  # 
+# 	gsl_matrix_transpose_memcpy (Xt, X);
+  t(X) -> Xt
+# 
+# 	for (size_t i=0; i<d_size; i++) {
+  for (i in 1:d_size){
+    Y_row <- Y[i, ] # matrix view used here!
+# 		gsl_vector_const_view Y_row=gsl_matrix_const_row (Y, i);
+# 		CalcLambda ('R', eval, Xt, &Y_row.vector, l_min, l_max, n_region, lambda, logl);
+    cl_out <- CalcLambda(eval, Xt, Y_row)
+    cl_out[[1]] -> lambda
+    cl_out[[2]] -> vg
+    cl_out[[3]] -> ve
+    cl_out[[4]] -> beta_temp
+    cl_out[[5]] -> se_beta_temp
+# 		CalcLmmVgVeBeta (eval, Xt, &Y_row.vector, lambda, vg, ve, beta_temp, se_beta_temp);
+    cl_out <- CalcLmmVgVeBeta(eval, Xt, Y_row, lambda)
+    cl_out[[1]] -> vg
+    cl_out[[2]] -> ve
+    cl_out[[3]] -> beta_temp
+    cl_out[[4]] -> se_beta_temp
+# 
+# 		gsl_matrix_set(V_g, i, i, vg);
+    V_g[i, i] <- vg
+# 		gsl_matrix_set(V_e, i, i, ve);
+    V_e[i, i] <- ve
+  }
+# 	}
+# 
+# 	gsl_matrix_free (Xt);
+# 	gsl_vector_free (beta_temp);
+# 	gsl_vector_free (se_beta_temp);
+# 
+# 	//if number of phenotypes is above four, then obtain the off diagonal elements with two trait models
+# 	if (d_size>4) {
+# 		//first obtain good initial values
+# 		//large matrices for EM
+# 		gsl_matrix *U_hat=gsl_matrix_alloc (2, n_size);
+# 		gsl_matrix *E_hat=gsl_matrix_alloc (2, n_size);
+# 		gsl_matrix *OmegaU=gsl_matrix_alloc (2, n_size);
+# 		gsl_matrix *OmegaE=gsl_matrix_alloc (2, n_size);
+# 		gsl_matrix *UltVehiY=gsl_matrix_alloc (2, n_size);
+# 		gsl_matrix *UltVehiBX=gsl_matrix_alloc (2, n_size);
+# 		gsl_matrix *UltVehiU=gsl_matrix_alloc (2, n_size);
+# 		gsl_matrix *UltVehiE=gsl_matrix_alloc (2, n_size);
+# 
+# 		//large matrices for NR
+# 		gsl_matrix *Hi_all=gsl_matrix_alloc (2, 2*n_size);		//each dxd block is H_k^{-1}
+# 		gsl_matrix *Hiy_all=gsl_matrix_alloc (2, n_size);				//each column is H_k^{-1}y_k
+# 		gsl_matrix *xHi_all=gsl_matrix_alloc (2*c_size, 2*n_size);		//each dcxdc block is x_k\otimes H_k^{-1}
+# 		gsl_matrix *Hessian=gsl_matrix_alloc (6, 6);
+# 
+# 		//2 by n matrix of Y
+# 		gsl_matrix *Y_sub=gsl_matrix_alloc (2, n_size);
+# 		gsl_matrix *Vg_sub=gsl_matrix_alloc (2, 2);
+# 		gsl_matrix *Ve_sub=gsl_matrix_alloc (2, 2);
+# 		gsl_matrix *B_sub=gsl_matrix_alloc (2, c_size);
+# 
+# 		for (size_t i=0; i<d_size; i++) {
+# 			gsl_vector_view Y_sub1=gsl_matrix_row (Y_sub, 0);
+# 			gsl_vector_const_view Y_1=gsl_matrix_const_row (Y, i);
+# 			gsl_vector_memcpy (&Y_sub1.vector, &Y_1.vector);
+# 
+# 			for (size_t j=i+1; j<d_size; j++) {
+# 				gsl_vector_view Y_sub2=gsl_matrix_row (Y_sub, 1);
+# 				gsl_vector_const_view Y_2=gsl_matrix_const_row (Y, j);
+# 				gsl_vector_memcpy (&Y_sub2.vector, &Y_2.vector);
+# 
+# 				gsl_matrix_set_zero (Vg_sub);
+# 				gsl_matrix_set_zero (Ve_sub);
+# 				gsl_matrix_set (Vg_sub, 0, 0, gsl_matrix_get (V_g, i, i));
+# 				gsl_matrix_set (Ve_sub, 0, 0, gsl_matrix_get (V_e, i, i));
+# 				gsl_matrix_set (Vg_sub, 1, 1, gsl_matrix_get (V_g, j, j));
+# 				gsl_matrix_set (Ve_sub, 1, 1, gsl_matrix_get (V_e, j, j));
+# 
+# 				logl=MphEM ('R', em_iter, em_prec, eval, X, Y_sub, U_hat, E_hat, OmegaU, OmegaE, UltVehiY, UltVehiBX, UltVehiU, UltVehiE, Vg_sub, Ve_sub, B_sub);
+# 				logl=MphNR ('R', nr_iter, nr_prec, eval, X, Y_sub, Hi_all, xHi_all, Hiy_all, Vg_sub, Ve_sub, Hessian, a, b, c);
+# 
+# 				gsl_matrix_set(V_g, i, j, gsl_matrix_get (Vg_sub, 0, 1));
+# 				gsl_matrix_set(V_g, j, i, gsl_matrix_get (Vg_sub, 0, 1));
+# 
+# 				gsl_matrix_set(V_e, i, j, ve=gsl_matrix_get (Ve_sub, 0, 1));
+# 				gsl_matrix_set(V_e, j, i, ve=gsl_matrix_get (Ve_sub, 0, 1));
+# 			}
+# 		}
+# 
+# 		//free matrices
+# 		gsl_matrix_free(U_hat);
+# 		gsl_matrix_free(E_hat);
+# 		gsl_matrix_free(OmegaU);
+# 		gsl_matrix_free(OmegaE);
+# 		gsl_matrix_free(UltVehiY);
+# 		gsl_matrix_free(UltVehiBX);
+# 		gsl_matrix_free(UltVehiU);
+# 		gsl_matrix_free(UltVehiE);
+# 
+# 		gsl_matrix_free(Hi_all);
+# 		gsl_matrix_free(Hiy_all);
+# 		gsl_matrix_free(xHi_all);
+# 		gsl_matrix_free(Hessian);
+# 
+# 		gsl_matrix_free(Y_sub);
+# 		gsl_matrix_free(Vg_sub);
+# 		gsl_matrix_free(Ve_sub);
+# 		gsl_matrix_free(B_sub);
+# 
+# 		/*
+# 		//second, maximize a increasingly large matrix
+# 		for (size_t i=1; i<d_size; i++) {
+# 			//large matrices for EM
+# 			gsl_matrix *U_hat=gsl_matrix_alloc (i+1, n_size);
+# 			gsl_matrix *E_hat=gsl_matrix_alloc (i+1, n_size);
+# 			gsl_matrix *OmegaU=gsl_matrix_alloc (i+1, n_size);
+# 			gsl_matrix *OmegaE=gsl_matrix_alloc (i+1, n_size);
+# 			gsl_matrix *UltVehiY=gsl_matrix_alloc (i+1, n_size);
+# 			gsl_matrix *UltVehiBX=gsl_matrix_alloc (i+1, n_size);
+# 			gsl_matrix *UltVehiU=gsl_matrix_alloc (i+1, n_size);
+# 			gsl_matrix *UltVehiE=gsl_matrix_alloc (i+1, n_size);
+# 			//large matrices for NR
+# 			gsl_matrix *Hi_all=gsl_matrix_alloc (i+1, (i+1)*n_size);		//each dxd block is H_k^{-1}
+# 			gsl_matrix *Hiy_all=gsl_matrix_alloc (i+1, n_size);				//each column is H_k^{-1}y_k
+# 			gsl_matrix *xHi_all=gsl_matrix_alloc ((i+1)*c_size, (i+1)*n_size);		//each dcxdc block is x_k\otimes H_k^{-1}
+# 			gsl_matrix *Hessian=gsl_matrix_alloc ((i+1)*(i+2), (i+1)*(i+2));
+# 			//(i+1) by n matrix of Y
+# 			gsl_matrix *Y_sub=gsl_matrix_alloc (i+1, n_size);
+# 			gsl_matrix *Vg_sub=gsl_matrix_alloc (i+1, i+1);
+# 			gsl_matrix *Ve_sub=gsl_matrix_alloc (i+1, i+1);
+# 			gsl_matrix *B_sub=gsl_matrix_alloc (i+1, c_size);
+# 			gsl_matrix_const_view Y_sub_view=gsl_matrix_const_submatrix (Y, 0, 0, i+1, n_size);
+# 			gsl_matrix_view Vg_sub_view=gsl_matrix_submatrix (V_g, 0, 0, i+1, i+1);
+# 			gsl_matrix_view Ve_sub_view=gsl_matrix_submatrix (V_e, 0, 0, i+1, i+1);
+# 			gsl_matrix_memcpy (Y_sub, &Y_sub_view.matrix);
+# 			gsl_matrix_memcpy (Vg_sub, &Vg_sub_view.matrix);
+# 			gsl_matrix_memcpy (Ve_sub, &Ve_sub_view.matrix);
+# 			logl=MphEM ('R', em_iter, em_prec, eval, X, Y_sub, U_hat, E_hat, OmegaU, OmegaE, UltVehiY, UltVehiBX, UltVehiU, UltVehiE, Vg_sub, Ve_sub, B_sub);
+# 			logl=MphNR ('R', nr_iter, nr_prec, eval, X, Y_sub, Hi_all, xHi_all, Hiy_all, Vg_sub, Ve_sub, Hessian, crt_a, crt_b, crt_c);
+# 			gsl_matrix_memcpy (&Vg_sub_view.matrix, Vg_sub);
+# 			gsl_matrix_memcpy (&Ve_sub_view.matrix, Ve_sub);
+# 			//free matrices
+# 			gsl_matrix_free(U_hat);
+# 			gsl_matrix_free(E_hat);
+# 			gsl_matrix_free(OmegaU);
+# 			gsl_matrix_free(OmegaE);
+# 			gsl_matrix_free(UltVehiY);
+# 			gsl_matrix_free(UltVehiBX);
+# 			gsl_matrix_free(UltVehiU);
+# 			gsl_matrix_free(UltVehiE);
+# 			gsl_matrix_free(Hi_all);
+# 			gsl_matrix_free(Hiy_all);
+# 			gsl_matrix_free(xHi_all);
+# 			gsl_matrix_free(Hessian);
+# 			gsl_matrix_free(Y_sub);
+# 			gsl_matrix_free(Vg_sub);
+# 			gsl_matrix_free(Ve_sub);
+# 			gsl_matrix_free(B_sub);
+# 		}
+# 		 */
+# 	}
+# 
+# 	//calculate B hat using GSL estimate
+# 	gsl_matrix *UltVehiY=gsl_matrix_alloc (d_size, n_size);
+  UltVehiY <- matrix(nrow = d_size, ncol = n_size)
+# 
+# 	gsl_vector *D_l=gsl_vector_alloc (d_size);
+  D_l <- matrix(nrow = d_size, ncol = d_size)
+# 	gsl_matrix *UltVeh=gsl_matrix_alloc (d_size, d_size);
+  UltVeh <- matrix(nrow = d_size, ncol = d_size)
+# 	gsl_matrix *UltVehi=gsl_matrix_alloc (d_size, d_size);
+  UltVehi <- matrix(nrow = d_size, ncol = d_size)
+# 	gsl_matrix *Qi=gsl_matrix_alloc (d_size*c_size, d_size*c_size);
+  Qi <- matrix(nrow = d_size * c_size, ncol = d_size * c_size)
+# 	gsl_vector *XHiy=gsl_vector_alloc (d_size*c_size);
+  XHiy <- numeric(length = d_size * c_size)
+# 	gsl_vector *beta=gsl_vector_alloc (d_size*c_size);
+  beta <- numeric(length = d_size * c_size)
+# 
+# 	gsl_vector_set_zero (XHiy);
+  
+# 
+# 	double logdet_Ve, logdet_Q, dl, d, delta, dx, dy;
+# 
+# 	//eigen decomposition and calculate log|Ve|
+# 	logdet_Ve=EigenProc (V_g, V_e, D_l, UltVeh, UltVehi);
+  ep_out <- eigen_proc(V_g, V_e)
+  # logdet_Ve, UltVeh, UltVehi, Dl
+  ep_out[[1]] -> logdet_Ve
+  ep_out[[2]] -> UltVeh
+  ep_out[[3]] -> UltVehi
+  ep_out[[4]] -> D_l
+# 
+# 	//calculate Qi and log|Q|
+# 	logdet_Q=CalcQi (eval, D_l, X, Qi);
+  cq_out <- calc_qi(eval = eval, D_l = D_l, X = X)
+  cq_out[[1]] -> Qi
+  cq_out[[2]] -> logdet_Q
+# 
+# 	//calculate UltVehiY
+# 	gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, UltVehi, Y, 0.0, UltVehiY);
+  UltVehiY <- UltVehi %*% Y
+# 
+# 	//calculate XHiy
+# 	for (size_t i=0; i<d_size; i++) {
+  for (i in 1:d_size){
+# 		dl=gsl_vector_get(D_l, i);
+    dl <- D_l[i]
+# 
+# 		for (size_t j=0; j<c_size; j++) {
+    for (j in 1:c_size){
+# 			d=0.0;
+      d <- 0
+# 			for (size_t k=0; k<n_size; k++) {
+      for (k in 1:n_size){
+# 				delta=gsl_vector_get(eval, k);
+        delta <- eval[k]
+# 				dx=gsl_matrix_get(X, j, k);
+        dx <- X[j, k]
+# 				dy=gsl_matrix_get(UltVehiY, i, k);
+        dy <- UltVehiY[i, k]
+# 
+# 				//if (delta==0) {continue;}
+# 				d+=dy*dx/(delta*dl+1.0);
+        d <- d + dy * dx / (delta * dl + 1)
+      }
+# 			}
+# 			gsl_vector_set(XHiy, j*d_size+i, d);
+        XHiy[(j - 1) * d_size + i] <- d
+    }
+  }
+# 		}
+# 	}
+# 
+# 	gsl_blas_dgemv(CblasNoTrans, 1.0, Qi, XHiy, 0.0, beta);
+  beta <- Qi %*% XHiy
+# 
+# 	//multiply beta by UltVeh and save to B
+# 	for (size_t i=0; i<c_size; i++) {
+  for (i in 1:c_size){
+# 		gsl_vector_view B_col=gsl_matrix_column (B, i);
+# 		gsl_vector_view beta_sub=gsl_vector_subvector (beta, i*d_size, d_size);
+    beta_sub <- beta[((i - 1) * d_size + 1):(i * d_size)]
+# 		gsl_blas_dgemv(CblasTrans, 1.0, UltVeh, &beta_sub.vector, 0.0, &B_col.vector);
+    B_col <- t(UltVeh) %*% beta_sub
+    B[, i] <- B_col
+  }
+# 	}
+# 
+# 	//free memory
+# 	gsl_matrix_free(UltVehiY);
+# 
+# 	gsl_vector_free(D_l);
+# 	gsl_matrix_free(UltVeh);
+# 	gsl_matrix_free(UltVehi);
+# 	gsl_matrix_free(Qi);
+# 	gsl_vector_free(XHiy);
+# 	gsl_vector_free(beta);
+# 
+# 	return;
+    return(list(V_g, V_e, B))
+# }
+}
+```
+
+### R code for `CalcLmmVgVeBeta`
+
+
+
+```{r}
+#void CalcLmmVgVeBeta (const gsl_vector *eval, const gsl_matrix *UtW, const gsl_vector *Uty, const double lambda, double &vg, double &ve, gsl_vector *beta, gsl_vector *se_beta)
+#{
+CalcLmmVgVeBeta <- function(eval, UtW, Uty, lambda){
+# 	size_t n_cvt=UtW->size2, ni_test=UtW->size1;
+  n_cvt <- ncol(UtW)
+  ni_test <- nrow(UtW)
+# 	size_t n_index=(n_cvt+2+1)*(n_cvt+2)/2;
+  n_index <- (n_cvt + 2 + 1) * (n_cvt + 2) / 2
+# 
+# 	gsl_matrix *Uab=gsl_matrix_alloc (ni_test, n_index);
+# 	gsl_vector *ab=gsl_vector_alloc (n_index);
+# 	gsl_matrix *Pab=gsl_matrix_alloc (n_cvt+2, n_index);
+# 	gsl_vector *Hi_eval=gsl_vector_alloc(eval->size);
+# 	gsl_vector *v_temp=gsl_vector_alloc(eval->size);
+# 	gsl_matrix *HiW=gsl_matrix_alloc(eval->size, UtW->size2);
+# 	gsl_matrix *WHiW=gsl_matrix_alloc(UtW->size2, UtW->size2);
+# 	gsl_vector *WHiy=gsl_vector_alloc(UtW->size2);
+# 	gsl_matrix *Vbeta=gsl_matrix_alloc(UtW->size2, UtW->size2);
+# 
+# 	gsl_matrix_set_zero (Uab);
+# 	CalcUab (UtW, Uty, Uab);
+# 
+# 	gsl_vector_memcpy (v_temp, eval);
+  eval -> v_temp
+# 	gsl_vector_scale (v_temp, lambda);
+  v_temp -> v_temp * lambda
+# 	gsl_vector_set_all (Hi_eval, 1.0);
+  Hi_eval <- rep(1, n)
+# 	gsl_vector_add_constant (v_temp, 1.0);
+  v_temp <- v_temp + 1
+# 	gsl_vector_div (Hi_eval, v_temp);
+  Hi_eval <- Hi_eval / v_temp
+# 
+# 	//calculate beta
+# 	gsl_matrix_memcpy (HiW, UtW);
+  HiW <- UtW
+# 	for (size_t i=0; i<UtW->size2; i++) {
+  for (i in 1:ncol(UtW)){
+# 		gsl_vector_view HiW_col=gsl_matrix_column(HiW, i);
+    HiW_col <- HiW[, i]
+# 		gsl_vector_mul(&HiW_col.vector, Hi_eval);
+    HiW[, i] <- HiW_col * Hi_eval
+  }
+# 	}
+# 	gsl_blas_dgemm (CblasTrans, CblasNoTrans, 1.0, HiW, UtW, 0.0, WHiW);
+  t(HiW) %*% UtW -> WHiW
+# 	gsl_blas_dgemv (CblasTrans, 1.0, HiW, Uty, 0.0, WHiy);
+  WHiy <- t(HiW) %*% Uty
+# 
+# 	int sig;
+# 	gsl_permutation * pmt=gsl_permutation_alloc (UtW->size2);
+# 	LUDecomp (WHiW, pmt, &sig);
+# 	LUSolve (WHiW, pmt, WHiy, beta);
+  # https://www.gnu.org/software/gsl/manual/html_node/LU-Decomposition.html
+  beta <- solve(a = WHiW, b = WHiy)
+# 	LUInvert (WHiW, pmt, Vbeta);
+  solve(WHiW) -> Vbeta
+# 
+# 	//calculate vg and ve
+# 	CalcPab (n_cvt, 0, Hi_eval, Uab, ab, Pab);
+  CalcPab()
+# 
+# 	size_t index_yy=GetabIndex (n_cvt+2, n_cvt+2, n_cvt);
+  index_yy <- GetabIndex(n_cvt + 2, n_cvt + 2, n_cvt)
+# 	double P_yy=gsl_matrix_get (Pab, n_cvt, index_yy);
+  P_yy <- Pab[n_cvt, index_yy]
+# 
+# 	ve=P_yy/(double)(ni_test-n_cvt);
+  ve <- P_yy / (ni_test - n_cvt)
+# 	vg=ve*lambda;
+  vg <- ve * lambda
+# 
+# 	//with ve, calculate se(beta)
+# 	gsl_matrix_scale(Vbeta, ve);
+  Vbeta <- Vbeta * ve
+# 
+# 	//obtain se_beta
+# 	for (size_t i=0; i<Vbeta->size1; i++) {
+# 		gsl_vector_set (se_beta, i, sqrt(gsl_matrix_get(Vbeta, i, i) ) );
+# 	}
+# 
+  for (i in 1:nrow(Vbeta)){
+    se_beta[i] <- sqrt(Vbeta[i, i])
+  }
+  
+# 	gsl_matrix_free(Uab);
+# 	gsl_matrix_free(Pab);
+# 	gsl_vector_free(ab);
+# 	gsl_vector_free(Hi_eval);
+# 	gsl_vector_free(v_temp);
+# 	gsl_matrix_free(HiW);
+# 	gsl_matrix_free(WHiW);
+# 	gsl_vector_free(WHiy);
+# 	gsl_matrix_free(Vbeta);
+# 
+# 	gsl_permutation_free(pmt);
+# 	return;
+# }
+  return(list(vg, ve, beta, se_beta))
+}
+
+  
+```
+
+### R code for `CalcLambda`
+
+```{r}
+# void CalcLambda (const char func_name, FUNC_PARAM &params, const double l_min, const double l_max, const size_t n_region, double &lambda, double &logf)
+# {
+
+CalcLambda <- function(func_name = "R", params, l_min, l_max, n_region){
+
+# 	if (func_name!='R' && func_name!='L' && func_name!='r' && func_name!='l') {cout<<"func_name only takes 'R' or 'L': 'R' for log-restricted likelihood, 'L' for log-likelihood."<<endl; return;}
+# 
+# 	vector<pair<double, double> > lambda_lh; //DECLARE lambda_lh
+# 
+  lambda_lh <- matrix(nrow = 0, ncol = 2)
+# 	//evaluate first order derivates in different intervals
+# 	double lambda_l, lambda_h, lambda_interval=log(l_max/l_min)/(double)n_region;
+  lambda_interval <- log(l_max / l_min) / n_region
+# 	double dev1_l, dev1_h, logf_l, logf_h;
+# 
+# 	for (size_t i=0; i<n_region; ++i) {
+  for (i in 1:n_region){
+# 		lambda_l=l_min*exp(lambda_interval*i);
+    lambda_l <- l_min * exp(lambda_interval * (i - 1))
+# 		lambda_h=l_min*exp(lambda_interval*(i+1.0));
+    lambda_h <- l_min * exp(lambda_interval * (i))
+# 
+# 		if (func_name=='R' || func_name=='r') {
+    if (func_name == "R"){
+# 			dev1_l=LogRL_dev1 (lambda_l, &params);
+      dev1_l <- LogRL_dev1(lambda_l, params)
+      dev1_h <- LogRL_dev1(lambda_h, params)
+# 			dev1_h=LogRL_dev1 (lambda_h, &params);
+# 		}
+    } 
+# 		else {
+# 			dev1_l=LogL_dev1 (lambda_l, &params);
+      
+# 			dev1_h=LogL_dev1 (lambda_h, &params);
+# 		}
+# 
+# 		if (dev1_l*dev1_h<=0) {
+    if (dev1_l * dev1_h <= 0){
+# 			lambda_lh.push_back(make_pair(lambda_l, lambda_h));
+      lambda_lh[nrow(lambda_lh) + 1, 1] <- lambda_l
+      lambda_lh[nrow(lambda_lh) + 1, 2] <- lambda_h
+    }
+  }
+# 		}
+# 	}
+# 
+# 	//if derivates do not change signs in any interval
+# 	if (lambda_lh.empty()) {
+  if (nrow(lambda_lh) == 0){
+    if (func_name == "R"){
+      logf_l <- LogRL_f(l_min, params)
+  		logf_h <- LogRL_f(l_max, params)
+    }
+  
+# 		if (func_name=='R' || func_name=='r') {
+# 			logf_l=LogRL_f (l_min, &params);
+# 			logf_h=LogRL_f (l_max, &params);
+# 		}
+# 		else {
+# 			logf_l=LogL_f (l_min, &params);
+# 			logf_h=LogL_f (l_max, &params);
+# 		}
+# 
+# 		if (logf_l>=logf_h) {lambda=l_min; logf=logf_l;} else {lambda=l_max; logf=logf_h;}
+    if (logf_l >= logf_h){
+      lambda <- l_min
+      logf <- logf_l
+    } else {
+      lambda <- l_max
+      logf <- logf_h
+    }
+  } else {
+# 	}
+# 	else {
+# 		//if derivates change signs
+# 		int status;
+# 		int iter=0, max_iter=100;
+    iter <- 0
+    max_iter <- 100
+# 		double l, l_temp;
+# 
+# 		gsl_function F;
+# 		gsl_function_fdf FDF;
+# 
+# 		F.params=&params;
+# 		FDF.params=&params;
+# 
+# 		if (func_name=='R' || func_name=='r') {
+# 			F.function=&LogRL_dev1;
+# 			FDF.f=&LogRL_dev1;
+# 			FDF.df=&LogRL_dev2;
+# 			FDF.fdf=&LogRL_dev12;
+# 		}
+# 		else {
+# 			F.function=&LogL_dev1;
+# 			FDF.f=&LogL_dev1;
+# 			FDF.df=&LogL_dev2;
+# 			FDF.fdf=&LogL_dev12;
+# 		}
+# 
+# 		const gsl_root_fsolver_type *T_f;
+# 		gsl_root_fsolver *s_f;
+# 		T_f=gsl_root_fsolver_brent;
+# 		s_f=gsl_root_fsolver_alloc (T_f);
+# 
+# 		const gsl_root_fdfsolver_type *T_fdf;
+# 		gsl_root_fdfsolver *s_fdf;
+# 		T_fdf=gsl_root_fdfsolver_newton;
+# 		s_fdf=gsl_root_fdfsolver_alloc(T_fdf);
+# 
+# 		for (vector<double>::size_type i=0; i<lambda_lh.size(); ++i) {
+# 			lambda_l=lambda_lh[i].first; lambda_h=lambda_lh[i].second;
+# 
+# 			gsl_root_fsolver_set (s_f, &F, lambda_l, lambda_h);
+# 
+# 			do {
+# 				iter++;
+# 				status=gsl_root_fsolver_iterate (s_f);
+# 				l=gsl_root_fsolver_root (s_f);
+# 				lambda_l=gsl_root_fsolver_x_lower (s_f);
+# 				lambda_h=gsl_root_fsolver_x_upper (s_f);
+# 				status=gsl_root_test_interval (lambda_l, lambda_h, 0, 1e-1);
+# 			}
+# 			while (status==GSL_CONTINUE && iter<max_iter);
+# 
+# 			iter=0;
+# 
+# 			gsl_root_fdfsolver_set (s_fdf, &FDF, l);
+# 
+# 			do {
+# 				iter++;
+# 				status=gsl_root_fdfsolver_iterate (s_fdf);
+# 				l_temp=l;
+# 				l=gsl_root_fdfsolver_root (s_fdf);
+# 				status=gsl_root_test_delta (l, l_temp, 0, 1e-5);
+# 			}
+# 			while (status==GSL_CONTINUE && iter<max_iter && l>l_min && l<l_max);
+# 
+# 			l=l_temp;
+# 			if (l<l_min) {l=l_min;}
+# 			if (l>l_max) {l=l_max;}
+# 			if (func_name=='R' || func_name=='r') {logf_l=LogRL_f (l, &params);} else {logf_l=LogL_f (l, &params);}
+# 
+# 			if (i==0) {logf=logf_l; lambda=l;}
+# 			else if (logf<logf_l) {logf=logf_l; lambda=l;}
+# 			else {}
+# 		}
+# 		gsl_root_fsolver_free (s_f);
+# 		gsl_root_fdfsolver_free (s_fdf);
+# 
+# 		if (func_name=='R' || func_name=='r') {
+# 			logf_l=LogRL_f (l_min, &params);
+# 			logf_h=LogRL_f (l_max, &params);
+# 		}
+# 		else {
+# 			logf_l=LogL_f (l_min, &params);
+# 			logf_h=LogL_f (l_max, &params);
+# 		}
+# 
+# 		if (logf_l>logf) {lambda=l_min; logf=logf_l;}
+# 		if (logf_h>logf) {lambda=l_max; logf=logf_h;}
+# 	}
+# 
+# 	return;
+# }
+```
+
+### R code for `CalcPab`
+
+```{r}
+
+```
+
+
+### R code for `GetabIndex`
+
+```{r}
+
+```
+
+
+
+
+## Running `MphEM()` with real data
+
+First, we read in the GEMMA example data.
+
+```{r}
+library(gemma2)
+library(readr)
+library(tidyverse)
+anno <- read_delim("~/GEMMA/example/mouse_hs1940.anno.txt", delim = "\t", col_names = c("rs_id", "position", "chromosome", "cM"))
+geno <- read_delim("~/GEMMA/example/mouse_hs1940.geno.txt", delim = ",", col_names = FALSE) %>%
+  rename(rs_id = X1, major = X2, minor = X3)
+pheno <- read_delim("~/GEMMA/example/mouse_hs1940.pheno.txt", delim = "\t", col_names = FALSE)
+```
+
+```{r}
+# read relatedness matrix & remove last column of all NAs
+relatedness <- read_delim("~/GEMMA/example/output/mouse_hs1940.cXX.txt", delim = "\t", col_names = FALSE)[, - 1941] %>%
+  as.matrix()
+# decompose the relatedness matrix
+eigen(relatedness) -> eigen_out
+eigen_out$vectors -> U
+eigen_out$values -> eval
+```
+
+```{r}
+as.numeric(geno[1, 4:1943]) -> genotilde
+
+Xtilde <- rbind(1, genotilde) %>% as.matrix()
+X <- Xtilde %*% U
+```
+
+```{r}
+Ytilde <- t(pheno[, c(2, 6)]) %>% as.matrix()
+Ytilde[is.na(Ytilde)] <- 1/ 20
+ Y <- Ytilde %*% U
+```
+
+
+
+
+```{r}
+#out <- MphInitial(eval = eval, X = X, Y = Y)
+#V_g <- out[[1]]
+#V_e <- out[[2]]
+#B <- out[[3]]
+V_g <- diag(c(1, 1))
+V_e <- V_g
+MphEM(func_name = "R", max_iter = 100, max_prec = 0.001, eval = eval, X = X, Y = Y, V_g = V_g, V_e = V_e)
+```
+
+

@@ -1,0 +1,132 @@
+---
+title: Using `dplyr` functions in my R package
+author: Frederick Boehm
+date: '`r lubridate::now()`'
+categories:
+  - computing
+  - packages
+  - R
+tags:
+  - dplyr
+slug: using-dplyr-functions-in-my-r-package
+draft: 'false'
+---
+
+## Background
+
+I wrote the following function for use in my `pleiotropy` R package.
+
+```{r, eval = FALSE}
+calc_lod <- function(data, n_mouse){
+  # define log10detrss0
+  log10detrss0 <- dplyr::filter(data, marker1 == marker2)
+  pre1 <- dplyr::group_by(data, marker1)
+  profile1 <- dplyr::summarise(pre1, profile = min(log10detrss))
+  pre2 <- dplyr::group_by(data, marker2)
+  profile2 <- dplyr::summarise(pre2, profile = min(log10detrss))
+  return(tibble::tibble(lod1 = - n_mouse * (profile1$profile - min(log10detrss0$log10detrss)) / 2,
+                        lod2 = - n_mouse * (profile2$profile - min(log10detrss0$log10detrss))/ 2,
+                        joint = - n_mouse * (log10detrss0$log10detrss - min(log10detrss0$log10detrss)) / 2))
+}
+
+```
+
+I then wanted to include this function in my R package `pleiotropy`. However, when I run `devtools::check()` for this package, I get a note. Specifically, the note says:
+
+> checking R code for possible problems ... NOTE
+
+> calc_lod: no visible binding for global variable ‘marker1’
+
+> calc_lod: no visible binding for global variable ‘marker2’
+
+> calc_lod: no visible binding for global variable ‘log10detrss’
+
+> Undefined global functions or variables:
+
+>  log10detrss marker1 marker2
+
+I believe that the note arises because of the nonstandard evaluation methods that the `dplyr` R package uses.
+
+I then sought to fix the code so that, on running `devtools::check()`, I would not create this note.
+
+For the reader to understand my goals with this function, I will take a moment to describe the inputs to `calc_lod`. I use two inputs, `data` and `n_mouse`. The first, `data`, is a tibble with three columns. The columns have the names: `marker1`, `marker2`, and `log10detrss`. Each row represents a unique (ordered) pairing of markers and contains, in the third column, the logarithm of the determinant of the residual sum of squares matrix. 
+
+The second input, `n_mouse`, is needed for the calculation of LOD scores, as the code demonstrates. It corresponds to the number of mice used in the analysis.
+
+## Programming with `dplyr` R package
+
+The [`dplyr` programming vignette](https://cran.r-project.org/web/packages/dplyr/vignettes/programming.html) is where I started in my efforts to understand `dplyr` evaluation methods.
+
+## Finding the answer in `dplyr` programming vignette
+
+Near the top of the programming vignette, just above the heading "Different Expressions", the author writes:
+
+> If this function is in a package, using .data also prevents R CMD check from giving a NOTE about undefined global variables (provided that you’ve also imported rlang::.data with @importFrom rlang .data).
+
+After a google search, I realized that `rlang` is an R package that I've never before used. However, I still wasn't sure exactly how to accomplish what the vignette says is a solution. 
+
+I decided to rewrite my function by adding `.data$` to the variable names as needed. This led me to have a function that looks like this:
+
+```{r, eval = FALSE}
+calc_lod <- function(data, n_mouse){
+  # define log10detrss0
+  log10detrss0 <- dplyr::filter(data, .data$marker1 == .data$marker2)
+  pre1 <- dplyr::group_by(data, .data$marker1)
+  profile1 <- dplyr::summarise(pre1, profile = min(.data$log10detrss))
+  pre2 <- dplyr::group_by(data, .data$marker2)
+  profile2 <- dplyr::summarise(pre2, profile = min(.data$log10detrss))
+  return(tibble::tibble(lod1 = - n_mouse * (profile1$profile - min(log10detrss0$log10detrss)) / 2,
+                        lod2 = - n_mouse * (profile2$profile - min(log10detrss0$log10detrss))/ 2,
+                        joint = - n_mouse * (log10detrss0$log10detrss - min(log10detrss0$log10detrss)) / 2))
+}
+```
+
+In re-reading the sentence:
+
+> If this function is in a package, using .data also prevents R CMD check from giving a NOTE about undefined global variables (provided that you’ve also imported rlang::.data with @importFrom rlang .data).
+
+I guessed that I needed to add to my R script for calc_lod a line of notation for roxygen2. 
+
+With this line, my calc_lod.R file - which contains only the function `calc_lod` - looks like this:
+
+```{r, eval = FALSE}
+#' Calculate LODs - two profile and one joint - for two traits
+#'
+#' @param data tibble containing log10determinants of RSS
+#' @param n_mouse sample size
+#' @export
+#' @importFrom rlang .data
+
+calc_lod <- function(data, n_mouse){
+  # define log10detrss0
+  log10detrss0 <- dplyr::filter(data, .data$marker1 == .data$marker2)
+  pre1 <- dplyr::group_by(data, .data$marker1)
+  profile1 <- dplyr::summarise(pre1, profile = min(.data$log10detrss))
+  pre2 <- dplyr::group_by(data, .data$marker2)
+  profile2 <- dplyr::summarise(pre2, profile = min(.data$log10detrss))
+  return(tibble::tibble(lod1 = - n_mouse * (profile1$profile - min(log10detrss0$log10detrss)) / 2,
+                        lod2 = - n_mouse * (profile2$profile - min(log10detrss0$log10detrss))/ 2,
+                        joint = - n_mouse * (log10detrss0$log10detrss - min(log10detrss0$log10detrss)) / 2))
+}
+```
+
+It's important to notice that I manually added the line 
+
+```{r, eval = FALSE}
+#' @importFrom rlang .data
+```
+
+so that roxygen2, the R package that assembles the NAMESPACE file, would know to import `.data` from R package `rlang`. 
+
+Finally, I added `rlang` to the `pleiotropy` package dependencies by typing:
+
+```{r, eval = FALSE}
+devtools::use_package("rlang")
+```
+
+Now, when I run `devtools::check()` in the `pleiotropy` package directory, I see that there is no note produced:
+
+> R CMD check results
+
+> 0 errors | 0 warnings | 0 notes
+

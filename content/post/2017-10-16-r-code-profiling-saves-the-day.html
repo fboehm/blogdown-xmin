@@ -1,0 +1,63 @@
+---
+title: R code profiling saves the day!
+author: Frederick Boehm
+date: '2017-10-16'
+slug: r-code-profiling-saves-the-day
+draft: 'false'
+categories:
+  - computing
+tags:
+  - R
+  - high-throughput computing
+---
+
+
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>I recently needed to write R code to fit a linear model using generalized least squares (GLS). My initial attempt at writing functions to do this, while technically correct, seemed to be slow. For example, fitting about 100 such models took nearly 30 minutes on my MacBook Pro computer.</p>
+<p>My graduate school advisors suggested that I re-examine my code to see if I could find inefficiencies. For instance, if one were fitting multiple models with ordinary least squares (OLS), and the models all have the same design matrix, but distinct response vectors, then one could save computations by calculating only once the matrix <span class="math display">\[(X^TX)^{-1}X^T\]</span> and merely plugging in the response vector many times, using matrix multiplication, to get the OLS estimators for each model:</p>
+<p><span class="math display">\[\hat \beta = (X^TX)^{-1}X^TY\]</span></p>
+<p>I needed to use GLS - rather than OLS - because my response vector has a complicated (known) covariance structure. Specifically, my linear model is</p>
+<p><span class="math display">\[vec(Y) = Xvec(B) + vec(G) + vec(E)\]</span> where <span class="math inline">\(Y\)</span> is a n by 2 matrix of two phenotype measurements on each of <span class="math inline">\(n\)</span> mice, <span class="math inline">\(X\)</span> is a 2n by 2f block-diagonal design matrix, with two blocks each of size n by f, <span class="math inline">\(G\)</span> is a n by 2 matrix of genetic random effects, and <span class="math inline">\(E\)</span> is a n by 2 matrix of random errors. <span class="math inline">\(vec()\)</span> denotes the vectorization operation, which, for us, means that we stack the columns, <em>i.e.</em>, <span class="math inline">\(vec(Y)\)</span> is a length-2n vector that has the first n entries equal to the first column of <span class="math inline">\(Y\)</span> and the second n entries equal to the second column of <span class="math inline">\(Y\)</span>.</p>
+<p>Note that the <span class="math inline">\(X\)</span> matrix contains genotype probabilities for two distinct genetic markers. In our case, these markers are single nucleotide polymorphisms (SNPs). Each mouse in our study is a genetic mosaic of 8 inbred founder lines, so we have 8 possible founder alleles for each marker. For each mouse and each locus, we’ve inferred the eight founder genotype probabilities via hidden Markov models.</p>
+<p>I need to specify the assumed distributions for <span class="math inline">\(G\)</span> and <span class="math inline">\(E\)</span>.</p>
+<p>We assume <span class="math display">\[E \sim MN_{nx2}(0, I_n, V_e)\]</span> and <span class="math display">\[G \sim MN_{nx2}(0, K, V_g)\]</span> where <span class="math inline">\(MN_{nx2}(A, R, C)\)</span> denotes the matrix-variate normal distribution for a n by 2 matrix with mean matrix <span class="math inline">\(A\)</span>, among-rows, n by n covariance matrix <span class="math inline">\(R\)</span>, and among-columns, 2 by 2 covariance matrix <span class="math inline">\(C\)</span>. Note that <span class="math inline">\(0\)</span>, here, refers to the n by 2 matrix the entries of which are all zeros. Note also that I use the phrase among-rows covariance to the covariance that relates the row vectors, while among-columns covariance refers to the covariance matrix that relates the column vectors. <span class="math inline">\(I_n\)</span> is the n by n identity matrix, while</p>
+<p>We use known properties of the Kronecker product to write the equivalent distributions for <span class="math inline">\(vec(G)\)</span> and <span class="math inline">\(vec(E)\)</span>.</p>
+<p>We get that</p>
+<p><span class="math display">\[vec(G) \sim N(0, V_g \otimes K)\]</span> and <span class="math display">\[vec(E) \sim N(0, V_e \otimes I_n)\]</span> where <span class="math inline">\(\otimes\)</span> denotes the Kronecker product. Note that the Kronecker product is not commutative, <em>i.e.</em>, so <span class="math display">\[A \otimes B \neq B \otimes A\]</span></p>
+<p>However, the two Kronecker products <span class="math inline">\(A \otimes B\)</span> and <span class="math inline">\(B \otimes A\)</span> have the same dimensions, so one must be extremely careful to get the ordering correct when writing them.</p>
+</div>
+<div id="a-small-distraction-correcting-the-ordering-for-kronecker-products" class="section level2">
+<h2>A small distraction: Correcting the ordering for Kronecker products</h2>
+<p>In writing this blog post, I realized that I’ve been writing my Kronecker products backwards, <em>i.e.</em>, I’ve been writing in R <code>In %x% Ve</code> when I should be writing <code>Ve %x% In</code>. I know that I’ve always written my Kronecker products with <code>%x%</code> rather than using an explicit call to the function <code>kronecker()</code>, but, without looking, I’m not sure which functions in my package <a href="https://github.com/fboehm/qtl2pleio"><code>qtl2pleio</code></a>. For this reason, I’ll use the linux command line tool <code>grep</code>. Specifically, I write:</p>
+<pre class="bash"><code>grep &#39;%x%&#39; ~/Box\ Sync/Rpkgs/qtl2pleio/R/*.R</code></pre>
+<pre><code>## /Users/frederickboehm/Box Sync/Rpkgs/qtl2pleio/R/calc_Sigma.R:  out &lt;- K %x% Vg + diag(n_mouse) %x% Ve
+## /Users/frederickboehm/Box Sync/Rpkgs/qtl2pleio/R/sim1.R:  Sigma &lt;- kinship %x% Vg + In %x% Ve</code></pre>
+<p>I see that there are two lines that feature the <code>%x%</code> operator. I see also that my function <code>sim1</code> needs to be changed so that it calls a new-ish function <code>calc_Sigma</code>.</p>
+<p>I make those changes in the two files, and then use <code>grep</code> again to ensure that the function <code>calc_Sigma</code> has the proper ordering of components in the Kronecker product.</p>
+<pre class="bash"><code>grep &#39;%x%&#39; ~/Box\ Sync/Rpkgs/qtl2pleio/R/*.R</code></pre>
+<pre><code>## /Users/frederickboehm/Box Sync/Rpkgs/qtl2pleio/R/calc_Sigma.R:  out &lt;- Vg %x% K  + Ve %x% diag(n_mouse)</code></pre>
+<p>A reference that discusses the ordering of components in Kronecker products when using the <span class="math inline">\(vec()\)</span> operator is <a href="https://en.wikipedia.org/wiki/Matrix_normal_distribution">this Wikipedia article</a>.</p>
+<p><em>Aside</em>: Note that I had to set the R code chunk option <code>cache=TRUE</code> for the first <code>bash</code> chunk in my Rmd source file to enable preservation of the ‘bad’ code after its correction.</p>
+</div>
+<div id="back-to-the-main-point-profiling" class="section level2">
+<h2>Back to the main point: Profiling!</h2>
+<p>Ok, now that I’ve fixed that error, I return to the heart of the story. I need to fit many (tens of thousands) of linear models, each with different design matrices. However, I have only a limited number of phenotypes. For a single bivariate phenotype, <em>i.e.</em>, a single n by 2 <span class="math inline">\(Y\)</span> matrix of phenotype measurements, I need to fit approximately 10,000 distinct linear models, where the linear models differ in their design matrices. The key realization is that the covariance structure is the same for all models that use a single bivariate phenotype. Thus, while I need to calculate <span class="math display">\[vec(\hat B) = (X^T\Sigma^{-1} X)^{-1}X^T\Sigma^{-1}vec(Y)\]</span> for each distinct design matrix, <strong>I don’t need to calculate <span class="math inline">\(\Sigma^{-1}\)</span> for every linear model, since I am treating <span class="math inline">\(\Sigma\)</span> as fixed for a given bivariate phenotype.</strong></p>
+<p>That is, I really only need to calculate <span class="math inline">\(\Sigma^{-1}\)</span> once for each bivariate phenotype because I assume that <span class="math inline">\(\Sigma\)</span> depends only on the bivariate phenotype. <em>I should add that this is an approximation to the correct model fit, but, for my purposes, I believe that it’s good enough.</em></p>
+<p>I initially wrote a function that calculated the inverse of <span class="math inline">\(\Sigma\)</span> twice on the fly. Profiling helped me to identify that it was the process of using <code>solve(Sigma)</code> that consumed so much of my computing time, <em>i.e.</em>, when I was using about 30 minutes to fit 100 models.</p>
+<p>I naively wrote:</p>
+<pre class="r"><code>Bhat &lt;- solve(t(X) %*% solve(Sigma) %*% X) %*% t(X) %*% solve(Sigma) %*% as.vector(Y)</code></pre>
+<p>Specifically, my graduate school advisors pointed out that the book <a href="http://adv-r.had.co.nz">Advanced R</a> has a <a href="http://adv-r.had.co.nz/Profiling.html">chapter on profiling</a>.</p>
+<p>I then used Hadley Wickham’s <code>lineprof</code> R package to identify the lines in my functions that took the greatest amount of time. All of the most time-consuming lines contained a call to <code>solve</code>. In examining my code closely, I realized that I could rewrite it so that I called <code>solve</code> only once for per bivariate phenotype, rather than twice per model fit.</p>
+<p>I then changed my code so that, for each bivariate phenotype I calculate <code>Sigma_inv</code> only once:</p>
+<pre class="r"><code>solve(Sigma) -&gt; Sigma_inv
+for (i in 1:n_snp){
+  for (j in 1:n_snp){
+    Bhat &lt;- solve(t(X) %*% Sigma_inv %*% X) %*% t(X) %*% Sigma_inv %*% as.vector(Y)
+  }
+}</code></pre>
+<p><em>Note that I’ve omitted some of the code in the above chunk. Despite this, I think that the point is well illustrated.</em></p>
+<p>I have sped up my code more than 10x by removing the repeated evaluations of <code>solve(Sigma)</code>.</p>
+<p>Wickham discusses bottleneck identification via line profiling in his chapter on profiling. This Advanced R chapter is well written and makes for good reading. I highly recommend it.</p>
+</div>

@@ -1,0 +1,13 @@
+---
+title: 'Mathematical Writing by Donald Knuth, Tracy Larrabee, and Paul Roberts'
+author: Frederick Boehm
+date: '2017-08-16'
+slug: mathematical-writing-by-donald-knuth-tracy-larrabee-and-paul-roberts
+categories:
+  - writing
+  - mathematics
+tags: []
+---
+
+I recently applied for a peer review training program that the Genetics Society of America organizes. An advisor kindly agreed to write a recommendation for my application. In discussing the program application with him, he told me that most of what he knows about refereeing he learned from Don Knuth's book, *Mathematical Writing*. I decided to find a copy of the book. The publisher, MAA, says that the book is out of print. However, they offer a PDF of the book for \$16. You can order it [here](https://www.maa.org/press/ebooks/mathematical-writing). While I would typically balk at paying \$16 for a PDF, today I caved and bought a copy of it. I expect to find that it will be incredibly useful as I continue to develop as a writer and reviewer.
+

@@ -1,0 +1,118 @@
+---
+title: High-throughput computing & working with condor
+author: Frederick Boehm
+date: '`r lubridate::now()`'
+slug: high-throughput-computing-working-with-condor
+draft: 'true'
+categories:
+  - computing
+  - R
+tags:
+  - high-throughput computing
+---
+
+## Overview
+
+I'm learning to use a high-throughput computing facility - the [Center for High-Throughput Computing](http://chtc.cs.wisc.edu/) at the University of Wisconsin-Madison. Below, I detail my experience in preparing my code for using the CHTC's computers. What follows may be boring for the non-specialist (and, possibly, for the specialist, too).
+
+## The problem
+
+I need to fit tens of thousands - millions, even - of linear mixed effects models for my research in systems genetics. Each model represents an ordered pair of loci. Specifically, I want to fit the model:
+
+$$vec(Y) = XB + vec(G) + vec(E)$$ 
+
+where $$G \sim MN(0, K, V_g)$$ and $$E\sim MN(0, I_n, V_e)$$ are independent. We use one row per subject and one column per phenotype. We denote the matrix-variate normal distribution with mean zero (*i.e.*, the matrix with all entries set to zero), among-row covariance matrix $U$ and among-column covariance matrix $V$ as $MN(0, U, V)$.
+
+Existing software in the R package `regress` can fit my models by using a Newton-Raphson algorithm. However, the calculations are somewhat slow. To study the empirical properties of my analysis, I need to fit, as I suggested above, millions of models. While I could dedicate my time to trying to write faster code, perhaps using `Julia` or `C++`, I have limited experience with those two languages. It could take weeks (or longer) for me to implement the model fitting in a langauge other than R. 
+
+I decided, instead, to use my existing R code with the UW-Madison's Center for High-Throughput Computing.
+
+## CHTC
+
+The CHTC is a facility available to UW-Madison personnel. My understanding of the details is still a little unclear, but one essentially can access a high volume of computing horsepower by breaking into small pieces a larger computing task. Each small piece is then sent to a single computer. 
+
+## Using CHTC with R
+
+CHTC works fairly nicely with R. While a user is required to package an R installation that will be sent to every computer that the user's jobs access, the excellent documentation at the CHTC website makes this easy to do.
+
+## Sending multiple jobs with a single submit file
+
+The CHTC requires users to write a submit file that contains the instructions for running the computing tasks that the user requests. I would like to have a single submit file that sends multiple jobs to the remote computers. Each job, I want to differ only in command-line arguments that get passed to R. 
+
+For example, I want one job to run the R job:
+
+`R CMD BATCH '--args i='$1' j='$2'' myscript.R`
+
+and a second job
+
+`R CMD BATCH '--args i='$3' j='$4'' myscript.R`
+
+That is, I want the specified values $i$ and $j$ to differ for different jobs. 
+
+It turns out that I can use the `$(Process)` variable, which I first saw in the CHTC's ['Hello, CHTC' exercise](http://chtc.cs.wisc.edu/helloworld.shtml).
+
+It turns out that `$(Process)` takes non-negative integer values, starting with 0, 1, 2, etc.
+
+My analysis goals require that I iterate i and j over integers 1, ..., n. I would then have $n^2$ distinct jobs.
+
+I thus sought to do some arithmetic on the `$(Process)` variable. 
+
+## Modular arithmetic with `$(Process)`
+
+I will have $n^2$ jobs. Let's say $n = 3$. I thus need to have 9 ordered pairs (i, j) where both i and j can take integer values from 1 to 3. 
+
+It turns out that one can do modular arithmetic in BASH shell scripts. 
+
+One just needs to put double parenthese around the operation. For instance, write
+
+`$((5 % 3))` is the value 2, since 3 goes into 5 once, with a remainder of 2.
+
+Note also that division returns the greatest integer less than or equal to the fraction, *i.e.*, `$((5 / 3))` returns 1, since 3 goes into 5 once (with remainder 2).
+
+I can then write the table:
+
+`$(Process)` | i | j |  
+-------------|---|---|
+0            | 1 | 1 |
+1            | 1 | 2 |
+2            | 1 | 3 |
+3            | 2 | 1 |
+4            | 2 | 2 |
+5            | 2 | 3 |
+6            | 3 | 1 |
+7            | 3 | 2 |
+8            | 3 | 3 |
+
+Looking at these numbers, we see that we can define $i$ by the equation:
+
+$$i = [$(Process) + 1] / 3$$
+
+and 
+
+$$j = [$(Process) \% 3] + 1$$
+
+Ok, so let's put these in the submit file, which is a BASH script. I added to my submit file these 4 lines:
+
+
+```{bash, eval = FALSE}
+# my variables
+n = 3
+i = ($(Process) + 1) / $n
+j = ($(Process) % $n) + 1
+```
+
+I also added the line 
+
+```{bash, eval = FALSE}
+arguments = $i $j
+```
+
+to the submit file.
+
+## Revising my R script to enable command-line arguments
+
+We steal the approach from a [R-bloggers post](https://www.r-bloggers.com/including-arguments-in-r-cmd-batch-mode/).
+
+
+
+

@@ -1,4 +1,4 @@
-baseurl = "https://fboehm.us/"
+baseurl = "http://fboehm.us/"
 languageCode = "en-us"
 title = "Frederick Boehm's Professional Website"
 theme = "hugo-xmin"

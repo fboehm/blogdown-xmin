@@ -1,5 +1,6 @@
 ---
 title: About Me
+disable_comments: 'true'
 ---
 
 I am a systems genetics and data science researcher and teacher who currently lives in Madison, Wisconsin, USA. I'm nearing completion of a Ph.D. in statistics from the University of Wisconsin-Madison. 

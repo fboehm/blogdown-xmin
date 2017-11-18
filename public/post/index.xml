@@ -12,6 +12,17 @@
     
     
     <item>
+      <title>Thoughts on Knott &amp; Haley (2000)</title>
+      <link>/post/2017/11/18/thoughts-on-knott-haley-2000/</link>
+      <pubDate>Sat, 18 Nov 2017 22:33:23 +0000</pubDate>
+      
+      <guid>/post/2017/11/18/thoughts-on-knott-haley-2000/</guid>
+      <description>Overview I’ve been re-reading Knott and Haley (2000). I’m trying to pay special attention to their methods for testing the competing hypotheses of 1. close linkage and 2. pleiotropy for a pair of traits that map to a single genomic region.
+ References Knott, Sara A, and Chris S Haley. 2000. “Multitrait Least Squares for Quantitative Trait Loci Detection.” Genetics 156 (2). Genetics Soc America: 899–911.
+   </description>
+    </item>
+    
+    <item>
       <title>R code profiling saves the day!</title>
       <link>/post/2017/10/16/r-code-profiling-saves-the-day/</link>
       <pubDate>Mon, 16 Oct 2017 00:00:00 +0000</pubDate>

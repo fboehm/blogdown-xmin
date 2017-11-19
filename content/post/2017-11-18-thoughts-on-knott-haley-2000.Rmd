@@ -15,7 +15,7 @@ draft: 'true'
 
 ## Overview
 
-I've been re-reading @knott2000multitrait. I'm trying to pay special attention to their methods for testing the competing hypotheses of 1. close linkage and 2. pleiotropy for a pair of traits that map to a single genomic region. 
+I've been reading @knott2000multitrait, an article that discusses methods for multivariate QTL mapping. I'm trying to pay special attention to their methods for testing the competing hypotheses of 1. close linkage and 2. pleiotropy for a pair of traits that map to a single genomic region. 
 
 
 

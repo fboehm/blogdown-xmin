@@ -6,10 +6,20 @@
     <description>Recent content in High-throughput computing on Frederick Boehm&#39;s Professional Website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 16 Oct 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 14 Dec 2017 02:02:55 +0000</lastBuildDate>
     
 	<atom:link href="/tags/high-throughput-computing/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>High-throughput computing &amp; working with condor</title>
+      <link>/draft/high-throughput-computing-working-with-condor/</link>
+      <pubDate>Thu, 14 Dec 2017 02:02:55 +0000</pubDate>
+      
+      <guid>/draft/high-throughput-computing-working-with-condor/</guid>
+      <description>Overview I’m learning to use a high-throughput computing facility - the Center for High-Throughput Computing at the University of Wisconsin-Madison. Below, I detail my experience in preparing my code for using the CHTC’s computers. What follows may be boring for the non-specialist (and, possibly, for the specialist, too).
+ The problem I need to fit tens of thousands - millions, even - of linear mixed effects models for my research in systems genetics.</description>
+    </item>
     
     <item>
       <title>R code profiling saves the day!</title>
@@ -19,16 +29,6 @@
       <guid>/post/2017/10/16/r-code-profiling-saves-the-day/</guid>
       <description>Overview I recently needed to write R code to fit a linear model using generalized least squares (GLS). My initial attempt at writing functions to do this, while technically correct, seemed to be slow. For example, fitting about 100 such models took nearly 30 minutes on my MacBook Pro computer.
 My graduate school advisors suggested that I re-examine my code to see if I could find inefficiencies. For instance, if one were fitting multiple models with ordinary least squares (OLS), and the models all have the same design matrix, but distinct response vectors, then one could save computations by calculating only once the matrix \[(X^TX)^{-1}X^T\] and merely plugging in the response vector many times, using matrix multiplication, to get the OLS estimators for each model:</description>
-    </item>
-    
-    <item>
-      <title>High-throughput computing &amp; working with condor</title>
-      <link>/post/2017/09/14/high-throughput-computing-working-with-condor/</link>
-      <pubDate>Thu, 14 Sep 2017 19:43:10 +0000</pubDate>
-      
-      <guid>/post/2017/09/14/high-throughput-computing-working-with-condor/</guid>
-      <description>Overview I’m learning to use a high-throughput computing facility - the Center for High-Throughput Computing at the University of Wisconsin-Madison. Below, I detail my experience in preparing my code for using the CHTC’s computers. What follows may be boring for the non-specialist (and, possibly, for the specialist, too).
- The problem I need to fit tens of thousands - millions, even - of linear mixed effects models for my research in systems genetics.</description>
     </item>
     
   </channel>

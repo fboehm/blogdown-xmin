@@ -6,17 +6,17 @@
     <description>Recent content in R on Frederick Boehm&#39;s Professional Website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 14 Sep 2017 19:43:10 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 14 Dec 2017 02:02:55 +0000</lastBuildDate>
     
 	<atom:link href="/categories/r/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>High-throughput computing &amp; working with condor</title>
-      <link>/post/2017/09/14/high-throughput-computing-working-with-condor/</link>
-      <pubDate>Thu, 14 Sep 2017 19:43:10 +0000</pubDate>
+      <link>/draft/high-throughput-computing-working-with-condor/</link>
+      <pubDate>Thu, 14 Dec 2017 02:02:55 +0000</pubDate>
       
-      <guid>/post/2017/09/14/high-throughput-computing-working-with-condor/</guid>
+      <guid>/draft/high-throughput-computing-working-with-condor/</guid>
       <description>Overview I’m learning to use a high-throughput computing facility - the Center for High-Throughput Computing at the University of Wisconsin-Madison. Below, I detail my experience in preparing my code for using the CHTC’s computers. What follows may be boring for the non-specialist (and, possibly, for the specialist, too).
  The problem I need to fit tens of thousands - millions, even - of linear mixed effects models for my research in systems genetics.</description>
     </item>

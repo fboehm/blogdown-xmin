@@ -1,0 +1,25 @@
+---
+title: git add & the -u flag
+author: Frederick Boehm
+date: '2017-12-14 02:13:07'
+slug: git-add-the-u-flag
+categories:
+  - reproducibility
+  - computing
+tags:
+  - git
+---
+
+
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>I am still learning <code>git</code>, despite the fact that I’ve been trying to use it for 3 or more years. Today I needed to stage deleted files (<em>i.e.</em>, files that I previously added to the repository). I tried</p>
+<pre class="bash"><code>git add .</code></pre>
+<p>but I then saw, after typing</p>
+<pre class="bash"><code>git status</code></pre>
+<p>that the deleted files remained unstaged.</p>
+<p>A quick google search turned up <a href="https://stackoverflow.com/questions/492558/removing-multiple-files-from-a-git-repo-that-have-already-been-deleted-from-disk">this discussion</a>. I then changed directories to the directory that is the root, or source - I’m not sure of the proper term - for my repository, and typed</p>
+<pre class="bash"><code>git add -u .</code></pre>
+<p>With the <code>-u</code> flag, I successfully staged the deleted files and, after committing, I had a clean working directory.</p>
+</div>

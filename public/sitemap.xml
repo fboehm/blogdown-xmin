@@ -2,23 +2,28 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>/post/2017/12/06/generalized-variance-inflation-factors/</loc>
-    <lastmod>2017-12-06T21:51:54+00:00</lastmod>
+    <loc>/post/2017/12/14/git-add-the-u-flag/</loc>
+    <lastmod>2017-12-14T02:13:07+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/2017/11/19/thoughts-on-knott-haley-2000/</loc>
-    <lastmod>2017-11-19T00:33:35+00:00</lastmod>
+    <loc>/draft/high-throughput-computing-working-with-condor/</loc>
+    <lastmod>2017-12-14T02:02:55+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/draft/generalized-variance-inflation-factors/</loc>
+    <lastmod>2017-12-14T01:38:12+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/draft/thoughts-on-knott-haley-2000/</loc>
+    <lastmod>2017-12-14T01:37:48+00:00</lastmod>
   </url>
   
   <url>
     <loc>/post/2017/10/16/r-code-profiling-saves-the-day/</loc>
     <lastmod>2017-10-16T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/post/2017/09/14/high-throughput-computing-working-with-condor/</loc>
-    <lastmod>2017-09-14T19:43:10+00:00</lastmod>
   </url>
   
   <url>
@@ -145,6 +150,12 @@
   </url>
   
   <url>
+    <loc>/draft/</loc>
+    <lastmod>2017-12-14T02:02:55+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/tags/em-algorithm/</loc>
     <lastmod>2017-07-04T10:13:51+00:00</lastmod>
     <priority>0</priority>
@@ -152,19 +163,25 @@
   
   <url>
     <loc>/tags/genetics/</loc>
-    <lastmod>2017-11-19T00:33:35+00:00</lastmod>
+    <lastmod>2017-12-14T01:37:48+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/git/</loc>
+    <lastmod>2017-12-14T02:13:07+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/high-throughput-computing/</loc>
-    <lastmod>2017-10-16T00:00:00+00:00</lastmod>
+    <lastmod>2017-12-14T02:02:55+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/</loc>
-    <lastmod>2017-12-06T21:51:54+00:00</lastmod>
+    <lastmod>2017-12-14T02:13:07+00:00</lastmod>
   </url>
   
   <url>
@@ -205,31 +222,37 @@
   
   <url>
     <loc>/tags/quantitative-trait-locus/</loc>
-    <lastmod>2017-11-19T00:33:35+00:00</lastmod>
+    <lastmod>2017-12-14T01:37:48+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/r/</loc>
-    <lastmod>2017-12-06T21:51:54+00:00</lastmod>
+    <lastmod>2017-12-14T01:38:12+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/r/</loc>
-    <lastmod>2017-09-14T19:43:10+00:00</lastmod>
+    <lastmod>2017-12-14T02:02:55+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/reproducibility/</loc>
+    <lastmod>2017-12-14T02:13:07+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/statistics/</loc>
-    <lastmod>2017-12-06T21:51:54+00:00</lastmod>
+    <lastmod>2017-12-14T01:38:12+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/systems-genetics/</loc>
-    <lastmod>2017-12-06T21:51:54+00:00</lastmod>
+    <lastmod>2017-12-14T01:38:12+00:00</lastmod>
     <priority>0</priority>
   </url>
   

@@ -12,24 +12,15 @@
     
     
     <item>
-      <title>Generalized variance inflation factors</title>
-      <link>/post/2017/12/06/generalized-variance-inflation-factors/</link>
-      <pubDate>Wed, 06 Dec 2017 21:51:54 +0000</pubDate>
+      <title>git add &amp; the -u flag</title>
+      <link>/post/2017/12/14/git-add-the-u-flag/</link>
+      <pubDate>Thu, 14 Dec 2017 02:13:07 +0000</pubDate>
       
-      <guid>/post/2017/12/06/generalized-variance-inflation-factors/</guid>
-      <description>Overview of the statistical model I am working with a linear mixed effects model,
-\[vec(Y) = Xvec(B) + vec(G) + vec(E)\]
-where \(Y\) is a n by 2 matrix of trait values with one row per subject and one column per trait, \(X\) is a 2n by 2f matrix containing genotypic data in two n by f blocks, both of which are one the diagonal (i.e., \(X\) is a block-diagonal matrix with two diagonal blocks), \(B\) is a f by 2 matrix of allele effect sizes, \(G\) is a n by 2 matrix of genotypic random effects, and \(E\) is a n by 2 matrix of random errors.</description>
-    </item>
-    
-    <item>
-      <title>Thoughts on Knott &amp; Haley (2000)</title>
-      <link>/post/2017/11/19/thoughts-on-knott-haley-2000/</link>
-      <pubDate>Sun, 19 Nov 2017 00:33:35 +0000</pubDate>
-      
-      <guid>/post/2017/11/19/thoughts-on-knott-haley-2000/</guid>
-      <description>Overview I’ve been reading Knott and Haley (2000), an article that discusses methods for multivariate QTL mapping. I’m trying to pay special attention to their methods for testing the competing hypotheses of 1. close linkage and 2. pleiotropy for a pair of traits that map to a single genomic region.
- References Knott, Sara A, and Chris S Haley. 2000. “Multitrait Least Squares for Quantitative Trait Loci Detection.” Genetics 156 (2).</description>
+      <guid>/post/2017/12/14/git-add-the-u-flag/</guid>
+      <description>Overview I am still learning git, despite the fact that I’ve been trying to use it for 3 or more years. Today I needed to stage deleted files (i.e., files that I previously added to the repository). I tried
+git add . but I then saw, after typing
+git status that the deleted files remained unstaged.
+A quick google search turned up this discussion. I then changed directories to the directory that is the root, or source - I’m not sure of the proper term - for my repository, and typed</description>
     </item>
     
     <item>
@@ -40,16 +31,6 @@ where \(Y\) is a n by 2 matrix of trait values with one row per subject and one 
       <guid>/post/2017/10/16/r-code-profiling-saves-the-day/</guid>
       <description>Overview I recently needed to write R code to fit a linear model using generalized least squares (GLS). My initial attempt at writing functions to do this, while technically correct, seemed to be slow. For example, fitting about 100 such models took nearly 30 minutes on my MacBook Pro computer.
 My graduate school advisors suggested that I re-examine my code to see if I could find inefficiencies. For instance, if one were fitting multiple models with ordinary least squares (OLS), and the models all have the same design matrix, but distinct response vectors, then one could save computations by calculating only once the matrix \[(X^TX)^{-1}X^T\] and merely plugging in the response vector many times, using matrix multiplication, to get the OLS estimators for each model:</description>
-    </item>
-    
-    <item>
-      <title>High-throughput computing &amp; working with condor</title>
-      <link>/post/2017/09/14/high-throughput-computing-working-with-condor/</link>
-      <pubDate>Thu, 14 Sep 2017 19:43:10 +0000</pubDate>
-      
-      <guid>/post/2017/09/14/high-throughput-computing-working-with-condor/</guid>
-      <description>Overview I’m learning to use a high-throughput computing facility - the Center for High-Throughput Computing at the University of Wisconsin-Madison. Below, I detail my experience in preparing my code for using the CHTC’s computers. What follows may be boring for the non-specialist (and, possibly, for the specialist, too).
- The problem I need to fit tens of thousands - millions, even - of linear mixed effects models for my research in systems genetics.</description>
     </item>
     
     <item>

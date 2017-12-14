@@ -6,10 +6,21 @@
     <description>Recent content in Home on Frederick Boehm&#39;s Professional Website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 19 Nov 2017 00:33:35 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 06 Dec 2017 21:51:54 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Generalized variance inflation factors</title>
+      <link>/post/2017/12/06/generalized-variance-inflation-factors/</link>
+      <pubDate>Wed, 06 Dec 2017 21:51:54 +0000</pubDate>
+      
+      <guid>/post/2017/12/06/generalized-variance-inflation-factors/</guid>
+      <description>Overview of the statistical model I am working with a linear mixed effects model,
+\[vec(Y) = Xvec(B) + vec(G) + vec(E)\]
+where \(Y\) is a n by 2 matrix of trait values with one row per subject and one column per trait, \(X\) is a 2n by 2f matrix containing genotypic data in two n by f blocks, both of which are one the diagonal (i.e., \(X\) is a block-diagonal matrix with two diagonal blocks), \(B\) is a f by 2 matrix of allele effect sizes, \(G\) is a n by 2 matrix of genotypic random effects, and \(E\) is a n by 2 matrix of random errors.</description>
+    </item>
     
     <item>
       <title>Thoughts on Knott &amp; Haley (2000)</title>

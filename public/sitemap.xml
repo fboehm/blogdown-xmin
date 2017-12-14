@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>/post/2017/12/06/generalized-variance-inflation-factors/</loc>
+    <lastmod>2017-12-06T21:51:54+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/post/2017/11/19/thoughts-on-knott-haley-2000/</loc>
     <lastmod>2017-11-19T00:33:35+00:00</lastmod>
   </url>
@@ -159,7 +164,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2017-11-19T00:33:35+00:00</lastmod>
+    <lastmod>2017-12-06T21:51:54+00:00</lastmod>
   </url>
   
   <url>
@@ -206,7 +211,7 @@
   
   <url>
     <loc>/tags/r/</loc>
-    <lastmod>2017-10-16T00:00:00+00:00</lastmod>
+    <lastmod>2017-12-06T21:51:54+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -218,13 +223,13 @@
   
   <url>
     <loc>/categories/statistics/</loc>
-    <lastmod>2017-11-19T00:33:35+00:00</lastmod>
+    <lastmod>2017-12-06T21:51:54+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/systems-genetics/</loc>
-    <lastmod>2017-11-19T00:33:35+00:00</lastmod>
+    <lastmod>2017-12-06T21:51:54+00:00</lastmod>
     <priority>0</priority>
   </url>
   

@@ -6,15 +6,15 @@
     <description>Recent content in Home on Frederick Boehm&#39;s Professional Website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 14 Dec 2017 02:13:07 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 14 Dec 2017 02:20:40 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>git add &amp; the -u flag</title>
+      <title>`git add` &amp; the `-u` flag</title>
       <link>/post/2017/12/14/git-add-the-u-flag/</link>
-      <pubDate>Thu, 14 Dec 2017 02:13:07 +0000</pubDate>
+      <pubDate>Thu, 14 Dec 2017 02:20:40 +0000</pubDate>
       
       <guid>/post/2017/12/14/git-add-the-u-flag/</guid>
       <description>Overview I am still learning git, despite the fact that I’ve been trying to use it for 3 or more years. Today I needed to stage deleted files (i.e., files that I previously added to the repository). I tried

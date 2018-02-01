@@ -131,7 +131,7 @@
     <item>
       <title>R</title>
       <link>/tags/r/</link>
-      <pubDate>Thu, 14 Dec 2017 01:38:12 +0000</pubDate>
+      <pubDate>Thu, 01 Feb 2018 15:47:56 +0000</pubDate>
       
       <guid>/tags/r/</guid>
       <description></description>
@@ -143,6 +143,15 @@
       <pubDate>Fri, 14 Jul 2017 10:52:36 +0000</pubDate>
       
       <guid>/tags/testing/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Travis-CI</title>
+      <link>/tags/travis-ci/</link>
+      <pubDate>Thu, 01 Feb 2018 15:47:56 +0000</pubDate>
+      
+      <guid>/tags/travis-ci/</guid>
       <description></description>
     </item>
     

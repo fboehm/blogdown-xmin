@@ -1,0 +1,54 @@
+---
+title: 'Travis-CI and R packages: What to do when your Travis-CI build takes too long'
+author: Frederick Boehm
+date: '2018-02-01 15:47:56'
+slug: travis-ci-and-r-packages-what-to-do-when-your-travis-ci-build-takes-too-long
+draft: true
+categories:
+  - computing
+  - R
+  - packages
+  - reproducibility
+tags:
+  - R
+  - Travis-CI
+---
+
+
+
+<p>I use Travis-CI with my R packages on Github. By doing so, unit tests for my package are run each time I add a commit to my Github repository.</p>
+<p>I recently encountered for the first time an error that results from my R package vignette taking too long to build. I was aware that the package vignette would take a long time - about 20 to 30 minutes - to build, but I hadn’t realized that Travis would return an error because of this.</p>
+<p>The build log on Travis-CI concluded with:</p>
+<pre><code>No output has been received in the last 10m0s, this potentially indicates a stalled build or something wrong with the build itself.
+Check the details on how to adjust your build configuration on: https://docs.travis-ci.com/user/common-build-problems/#Build-times-out-because-no-output-was-received
+The build has been terminated</code></pre>
+<p>Visiting the referenced site for Travis-CI documentation, I learned that this problem might be surmounted by revising the .travis.yml file for my package.</p>
+<p>In reading <a href="https://github.com/travis-ci/travis-ci/issues/3849">this thread</a> it seems that I might need to add a <code>script</code> section to my <code>.travis.yml</code> file.</p>
+<p>I tried using <a href="https://github.com/fboehm/qtl2pleio/blob/17764cdc5ce3de61966b9d7f23751ae548289f14/.travis.yml">this</a> as my <code>.travis.yml</code> file. Note that I stole some of its text from Karl Broman’s <code>.travis.yml</code> file in the package <code>qtl2</code>. I reproduce the file’s contents here:</p>
+<pre><code># R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: r
+sudo: false
+cache: packages
+
+r_packages:
+ - devtools
+
+warnings_are_errors: true
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+
+# only use travis on master branch
+branches:
+  only:
+  - master
+
+# avoid timeout (see &lt;https://github.com/travis-ci/travis-ci/issues/3849#issuecomment-255096774&gt;)
+script:
+  - |
+    R CMD build --no-build-vignettes .
+    R CMD check --no--vignettes *.tar.gz</code></pre>
+<p>After several incorrect guesses on how to use <code>travis_wait</code> with an R package, I gave up (for the moment).</p>

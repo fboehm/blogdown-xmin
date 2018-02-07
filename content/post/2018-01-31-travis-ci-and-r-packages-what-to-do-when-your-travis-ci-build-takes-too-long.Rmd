@@ -3,7 +3,7 @@ title: 'Travis-CI and R packages: What to do when your Travis-CI build takes too
 author: Frederick Boehm
 date: '`r lubridate::now()`'
 slug: travis-ci-and-r-packages-what-to-do-when-your-travis-ci-build-takes-too-long
-draft: true
+draft: false
 categories:
   - computing
   - R

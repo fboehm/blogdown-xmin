@@ -1,9 +1,9 @@
 ---
 title: Getting started with the reticulate R package
 author: Frederick Boehm
-date: '2018-03-19 20:43:46'
+date: '2018-03-19 20:52:53'
 slug: getting-started-with-the-reticulate-r-package
-draft: true
+draft: false
 categories:
   - computing
   - R
@@ -46,7 +46,7 @@ tags:
 <pre><code>## Module(limmbo)</code></pre>
 <p>However, we can use the <code>$</code> operator to explore the contents of <code>limmbo</code>.</p>
 <pre class="r"><code>limmbo$core$vdsimple$vd_reml</code></pre>
-<pre><code>## &lt;function vd_reml at 0x1a14a68f50&gt;</code></pre>
+<pre><code>## &lt;function vd_reml at 0x1a1c087f50&gt;</code></pre>
 <p>It would be nice to know a little about this function. Let’s look at its help page. To do that, we use the <code>reticulate</code> R package’s function <code>py_help</code>.</p>
 <pre class="r"><code>py_help(limmbo$core$vdsimple$vd_reml)</code></pre>
 <p>If you’re working in Rstudio in an interactive session, the <code>Python</code> help file will pop up in a new tab. The help file has 3 main sections: 1. Arguments, 2. Returns, and 3. Examples.</p>

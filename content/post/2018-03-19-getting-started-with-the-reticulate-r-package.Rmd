@@ -3,7 +3,7 @@ title: Getting started with the reticulate R package
 author: Frederick Boehm
 date: '`r lubridate::now()`'
 slug: getting-started-with-the-reticulate-r-package
-draft: true
+draft: false
 categories:
   - computing
   - R

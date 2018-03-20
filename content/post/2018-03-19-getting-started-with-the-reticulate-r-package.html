@@ -1,0 +1,83 @@
+---
+title: Getting started with the reticulate R package
+author: Frederick Boehm
+date: '2018-03-19 20:43:46'
+slug: getting-started-with-the-reticulate-r-package
+draft: true
+categories:
+  - computing
+  - R
+  - packages
+  - systems genetics
+  - python
+tags:
+  - Genetics
+  - Linear mixed effects models
+  - Variance components
+  - Quantitative trait locus
+---
+
+
+
+<div id="motivation" class="section level2">
+<h2>Motivation</h2>
+<p>My colleague Rene Welch brought to my attention a recent pre-print, “LiMMBo: a simple, scalable approach for linear mixed models in high-dimensional genetic association studies” by Hannah Meyer, Francesco Casale, Oliver Stegle, and Ewan Birney. The biorxiv preprint is at <a href="https://www.biorxiv.org/content/early/2018/01/30/255497" class="uri">https://www.biorxiv.org/content/early/2018/01/30/255497</a></p>
+<p>The authors present a bootstrap-based strategy for fitting multivariate linear mixed effects models in genetics studies with up to hundreds of phenotypes. They use the model:</p>
+<p><span class="math display">\[vec(Y) = Xvec(B) + vec(G) + vec(E)\]</span> where G and E are independent n by p matrices of random effects and random errors, respectively; X is a <span class="math inline">\(np\)</span> by <span class="math inline">\(p(f + c)\)</span> block-diagonal matrix (with p blocks of dimension <span class="math inline">\(n\)</span> by <span class="math inline">\(f + c\)</span> on the diagonal) containing both the genetic marker data and the covariate values; B is a <span class="math inline">\(f + c\)</span> by <span class="math inline">\(p\)</span> matrix of covariate and allele effects. They also assume that G and E are matrix-variate normally distributed:</p>
+<p><span class="math display">\[G \sim MN(0, K, V_g)\]</span></p>
+<p><span class="math display">\[E \sim MN(0, I_n, V_e)\]</span></p>
+<p>They use the bootstrap in a clever way in finding an estimate for the <span class="math inline">\(np\)</span> by <span class="math inline">\(np\)</span> covariance matrix. A single bootstrap sample of <span class="math inline">\(s\)</span> phenotypes is randomly drawn from the <span class="math inline">\(p\)</span> phenotypes for all subjects. They then estimate the marginal covariance matrix - and the matrices <span class="math inline">\(V_g\)</span> and <span class="math inline">\(V_e\)</span> - for the <span class="math inline">\(s\)</span>-variate phenotype and repeat <span class="math inline">\(b\)</span> times. They then have <span class="math inline">\(b\)</span> estimates of marginal covariance matrices. By the nature of the sampling procedure, there may be multiple bootstrap samples in which traits <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> (for <span class="math inline">\(1 \le i, j \le p\)</span>) both appear. They average each covariate trait pair <span class="math inline">\(i\)</span>, <span class="math inline">\(j\)</span>, then use least-squares to find the closest covariance matrix. The last step makes use of the Broyden-Fletcher-Goldfarb-Shanno algorithm.</p>
+<p>I’m particularly interested in the methodology of this paper for reasons that I’ll develop in a future blog post. For now, I want to document my initial attempts at using the R package <code>reticulate</code></p>
+</div>
+<div id="reticulate-r-package" class="section level2">
+<h2><code>reticulate</code> R package</h2>
+<p>The goal of <code>reticulate</code> R package, as I understand it, is to enable calling of <code>python</code> code from <code>R</code> and vice-versa.</p>
+<p>The authors share freely their <a href="https://github.com/HannahVMeyer/limmbo"><code>python</code> module <code>limmbo</code></a> and <a href="https://github.com/HannahVMeyer/LiMMBoAnalysis">their analysis code</a> on Github.</p>
+<p>Recognizing that the methods would be useful in my research, and not wanting to work in <code>python</code>, I sought a way to use the existing <code>python</code> code within <code>R</code> code wrappers that I would write. An internet search guided me to the <code>reticulate</code> R package, which is on both CRAN and Github.</p>
+</div>
+<div id="initial-r-code-with-reticulate" class="section level2">
+<h2>Initial R code with <code>reticulate</code></h2>
+<p>I first installed Anaconda2 and <code>limmbo</code> as described by Hannah Meyer in the <a href="https://github.com/HannahVMeyer/limmbo/blob/77a148e0acde3bc26a6f6c17f52105054851d451/README.md"><code>limmbo</code> README file</a>. I then loaded the <code>reticulate</code> package in a new R session.</p>
+<pre class="r"><code>library(reticulate)</code></pre>
+<p>Within <code>reticulate</code>, there is a function <code>import</code> to load a <code>python</code> module (ie, a <em>package</em> in the <code>R</code> terminology). But you want to be sure to store the output as something (don’t just run <code>import()</code> without assigning its output to something).</p>
+<pre class="r"><code>import(&quot;limmbo&quot;) -&gt; limmbo</code></pre>
+<p>Now, we can look the object <code>limmbo</code> &amp; its contents. Typing merely <code>limmbo</code> at the R prompt isn’t terribly helpful:</p>
+<pre class="r"><code>limmbo</code></pre>
+<pre><code>## Module(limmbo)</code></pre>
+<p>However, we can use the <code>$</code> operator to explore the contents of <code>limmbo</code>.</p>
+<pre class="r"><code>limmbo$core$vdsimple$vd_reml</code></pre>
+<pre><code>## &lt;function vd_reml at 0x1a14a68f50&gt;</code></pre>
+<p>It would be nice to know a little about this function. Let’s look at its help page. To do that, we use the <code>reticulate</code> R package’s function <code>py_help</code>.</p>
+<pre class="r"><code>py_help(limmbo$core$vdsimple$vd_reml)</code></pre>
+<p>If you’re working in Rstudio in an interactive session, the <code>Python</code> help file will pop up in a new tab. The help file has 3 main sections: 1. Arguments, 2. Returns, and 3. Examples.</p>
+<p>I’ll work through the <code>python</code> code in the Examples section of the help file for the above function.</p>
+<pre class="python"><code>import numpy
+from numpy.random import RandomState
+from numpy.linalg import cholesky as chol
+from limmbo.core.vdsimple import vd_reml
+from limmbo.io.input import InputData
+random = RandomState(15)
+N = 100
+S = 1000
+P = 3
+snps = (random.rand(N, S) &lt; 0.2).astype(float)
+kinship = numpy.dot(snps, snps.T) / float(10)
+y  = random.randn(N, P)
+pheno = numpy.dot(chol(kinship), y)
+pheno_ID = [ &#39;PID{}&#39;.format(x+1) for x in range(P)]
+samples = [ &#39;SID{}&#39;.format(x+1) for x in range(N)]
+datainput = InputData()
+datainput.addPhenotypes(phenotypes = pheno,
+phenotype_ID = pheno_ID, pheno_samples = samples)
+datainput.addRelatedness(relatedness = kinship,
+relatedness_samples = samples)
+Cg, Cn, ptime = vd_reml(datainput, verbose=False)
+Cg
+Cn
+ptime</code></pre>
+</div>
+<div id="other-resources" class="section level2">
+<h2>Other resources</h2>
+<p>Rstudio has a <code>reticulate</code> site: <a href="https://rstudio.github.io/reticulate/index.html" class="uri">https://rstudio.github.io/reticulate/index.html</a></p>
+<p>They include many examples and discussions of more technical issues.</p>
+</div>

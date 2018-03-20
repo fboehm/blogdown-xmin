@@ -6,10 +6,21 @@
     <description>Recent content in Genetics on Frederick Boehm&#39;s Professional Website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 14 Dec 2017 01:37:48 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 19 Mar 2018 20:43:46 +0000</lastBuildDate>
     
 	<atom:link href="/tags/genetics/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Getting started with the reticulate R package</title>
+      <link>/post/2018/03/19/getting-started-with-the-reticulate-r-package/</link>
+      <pubDate>Mon, 19 Mar 2018 20:43:46 +0000</pubDate>
+      
+      <guid>/post/2018/03/19/getting-started-with-the-reticulate-r-package/</guid>
+      <description>Motivation My colleague Rene Welch brought to my attention a recent pre-print, “LiMMBo: a simple, scalable approach for linear mixed models in high-dimensional genetic association studies” by Hannah Meyer, Francesco Casale, Oliver Stegle, and Ewan Birney. The biorxiv preprint is at https://www.biorxiv.org/content/early/2018/01/30/255497
+The authors present a bootstrap-based strategy for fitting multivariate linear mixed effects models in genetics studies with up to hundreds of phenotypes. They use the model:
+\[vec(Y) = Xvec(B) + vec(G) + vec(E)\] where G and E are independent n by p matrices of random effects and random errors, respectively; X is a \(np\) by \(p(f + c)\) block-diagonal matrix (with p blocks of dimension \(n\) by \(f + c\) on the diagonal) containing both the genetic marker data and the covariate values; B is a \(f + c\) by \(p\) matrix of covariate and allele effects.</description>
+    </item>
     
     <item>
       <title>Thoughts on Knott &amp; Haley (2000)</title>

@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>/post/2018/03/19/getting-started-with-the-reticulate-r-package/</loc>
+    <lastmod>2018-03-19T20:43:46+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/post/2018/02/07/travis-ci-and-r-packages-what-to-do-when-your-travis-ci-build-takes-too-long/</loc>
     <lastmod>2018-02-07T13:04:42+00:00</lastmod>
   </url>
@@ -168,7 +173,7 @@
   
   <url>
     <loc>/tags/genetics/</loc>
-    <lastmod>2017-12-14T01:37:48+00:00</lastmod>
+    <lastmod>2018-03-19T20:43:46+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -186,7 +191,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2018-02-07T13:04:42+00:00</lastmod>
+    <lastmod>2018-03-19T20:43:46+00:00</lastmod>
   </url>
   
   <url>
@@ -203,7 +208,7 @@
   
   <url>
     <loc>/tags/linear-mixed-effects-models/</loc>
-    <lastmod>2017-09-02T12:38:19+00:00</lastmod>
+    <lastmod>2018-03-19T20:43:46+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -221,13 +226,19 @@
   
   <url>
     <loc>/categories/packages/</loc>
-    <lastmod>2018-02-07T13:04:42+00:00</lastmod>
+    <lastmod>2018-03-19T20:43:46+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/python/</loc>
+    <lastmod>2018-03-19T20:43:46+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/quantitative-trait-locus/</loc>
-    <lastmod>2017-12-14T01:37:48+00:00</lastmod>
+    <lastmod>2018-03-19T20:43:46+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -239,7 +250,7 @@
   
   <url>
     <loc>/categories/r/</loc>
-    <lastmod>2018-02-07T13:04:42+00:00</lastmod>
+    <lastmod>2018-03-19T20:43:46+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -257,7 +268,7 @@
   
   <url>
     <loc>/categories/systems-genetics/</loc>
-    <lastmod>2017-12-14T01:38:12+00:00</lastmod>
+    <lastmod>2018-03-19T20:43:46+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -281,7 +292,7 @@
   
   <url>
     <loc>/tags/variance-components/</loc>
-    <lastmod>2017-09-02T12:38:19+00:00</lastmod>
+    <lastmod>2018-03-19T20:43:46+00:00</lastmod>
     <priority>0</priority>
   </url>
   

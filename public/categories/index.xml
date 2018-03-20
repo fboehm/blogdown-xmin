@@ -59,16 +59,25 @@
     <item>
       <title>Packages</title>
       <link>/categories/packages/</link>
-      <pubDate>Wed, 07 Feb 2018 13:04:42 +0000</pubDate>
+      <pubDate>Mon, 19 Mar 2018 20:43:46 +0000</pubDate>
       
       <guid>/categories/packages/</guid>
       <description></description>
     </item>
     
     <item>
+      <title>Python</title>
+      <link>/categories/python/</link>
+      <pubDate>Mon, 19 Mar 2018 20:43:46 +0000</pubDate>
+      
+      <guid>/categories/python/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>R</title>
       <link>/categories/r/</link>
-      <pubDate>Wed, 07 Feb 2018 13:04:42 +0000</pubDate>
+      <pubDate>Mon, 19 Mar 2018 20:43:46 +0000</pubDate>
       
       <guid>/categories/r/</guid>
       <description></description>
@@ -95,7 +104,7 @@
     <item>
       <title>Systems genetics</title>
       <link>/categories/systems-genetics/</link>
-      <pubDate>Thu, 14 Dec 2017 01:38:12 +0000</pubDate>
+      <pubDate>Mon, 19 Mar 2018 20:43:46 +0000</pubDate>
       
       <guid>/categories/systems-genetics/</guid>
       <description></description>

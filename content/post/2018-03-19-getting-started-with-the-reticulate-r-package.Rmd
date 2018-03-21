@@ -55,7 +55,7 @@ Within `reticulate`, there is a function `import` to load a `python` module (ie,
 import("limmbo") -> limmbo
 ```
 
-Now, we can look the object `limmbo` & its contents. Typing merely `limmbo` at the R prompt isn't terribly helpful:
+Now, we can look at the object `limmbo` & its contents. Typing merely `limmbo` at the R prompt isn't terribly helpful:
 
 ```{r}
 limmbo
@@ -69,7 +69,7 @@ limmbo$core$vdsimple$vd_reml
 ```
 It would be nice to know a little about this function. Let's look at its help page. To do that, we use the `reticulate` R package's function `py_help`.
 
-```{r}
+```{r, eval = FALSE}
 py_help(limmbo$core$vdsimple$vd_reml)
 ```
 
@@ -98,11 +98,29 @@ datainput.addPhenotypes(phenotypes = pheno,
 phenotype_ID = pheno_ID, pheno_samples = samples)
 datainput.addRelatedness(relatedness = kinship,
 relatedness_samples = samples)
-Cg, Cn, ptime = vd_reml(datainput, verbose=False)
-Cg
-Cn
-ptime
+Cg, Cn, ptime = vd_reml(datainput, verbose=True)
+print(Cg)
 ```
+
+Now, we see that we created the objects `Cn`, `Cg` and `ptime` using `python`. We can access them with R code by using the object `py`:
+
+```{r, eval = TRUE}
+py$Cg
+py$Cn
+py$ptime
+```
+
+## Examine `vdbootstrap` code
+
+```{r, eval = TRUE}
+(limmbo$core$vdbootstrap$LiMMBo(py$datainput, timing = TRUE, iterations = 100, S = 2) -> foo)
+```
+
+```{r}
+limmbo$core$vdbootstrap$LiMMBo$runBootstrapCovarianceEstimation(foo, cpus = 1, seed = 12345, minCooccurrence = 10)
+```
+
+
 
 
 ## Other resources

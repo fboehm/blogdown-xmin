@@ -6,10 +6,19 @@
     <description>Recent content in Packages on Frederick Boehm&#39;s Professional Website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 30 Mar 2018 14:34:16 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 30 Mar 2018 15:07:48 +0000</lastBuildDate>
     
 	<atom:link href="/categories/packages/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>limmbo2 R package now on Github</title>
+      <link>/post/2018/03/30/limmbo2-r-package-now-on-github/</link>
+      <pubDate>Fri, 30 Mar 2018 15:07:48 +0000</pubDate>
+      
+      <guid>/post/2018/03/30/limmbo2-r-package-now-on-github/</guid>
+      <description>I have posted to Github the R package limmbo2. limmbo2 is a R wrapper to the freely available python module limmbo.</description>
+    </item>
     
     <item>
       <title>Getting started with the reticulate R package</title>

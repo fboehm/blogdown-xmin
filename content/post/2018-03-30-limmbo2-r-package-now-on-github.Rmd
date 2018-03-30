@@ -1,0 +1,16 @@
+---
+title: limmbo2 R package now on Github
+author: Frederick Boehm
+date: '`r lubridate::now()`'
+slug: limmbo2-r-package-now-on-github
+categories:
+  - computing
+  - packages
+tags:
+  - Genetics
+  - Linear mixed effects models
+  - R
+  - Variance components
+---
+
+I have posted to Github the R package [`limmbo2`](https://github.com/fboehm/limmbo2). `limmbo2` is a R wrapper to the freely available python module [`limmbo`](https://github.com/HannahVMeyer/limmbo). 

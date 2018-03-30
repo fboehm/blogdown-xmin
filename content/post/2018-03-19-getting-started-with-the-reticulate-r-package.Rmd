@@ -49,10 +49,10 @@ I first installed Anaconda2 and `limmbo` as described by Hannah Meyer in the [`l
 library(reticulate)
 ```
 
-Within `reticulate`, there is a function `import` to load a `python` module (ie, a *package* in the `R` terminology). But you want to be sure to store the output as something (don't just run `import()` without assigning its output to something).
+Within `reticulate`, there is a function `import` to load a `python` module (ie, like a *package* in the `R` terminology). But you want to be sure to store the output as something (don't just run `import()` without assigning its output to something).
 
 ```{r}
-import("limmbo") -> limmbo
+import("limmbo", convert = TRUE) -> limmbo
 ```
 
 Now, we can look at the object `limmbo` & its contents. Typing merely `limmbo` at the R prompt isn't terribly helpful:
@@ -104,7 +104,7 @@ print(Cg)
 
 Now, we see that we created the objects `Cn`, `Cg` and `ptime` using `python`. We can access them with R code by using the object `py`:
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 py$Cg
 py$Cn
 py$ptime
@@ -112,11 +112,11 @@ py$ptime
 
 ## Examine `vdbootstrap` code
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 (limmbo$core$vdbootstrap$LiMMBo(py$datainput, timing = TRUE, iterations = 100, S = 2) -> foo)
 ```
 
-```{r}
+```{r, eval = FALSE}
 limmbo$core$vdbootstrap$LiMMBo$runBootstrapCovarianceEstimation(foo, cpus = 1, seed = 12345, minCooccurrence = 10)
 ```
 

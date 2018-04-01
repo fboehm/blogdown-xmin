@@ -6,10 +6,19 @@
     <description>Recent content in Packages on Frederick Boehm&#39;s Professional Website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 30 Mar 2018 15:07:48 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 01 Apr 2018 12:56:36 +0000</lastBuildDate>
     
 	<atom:link href="/categories/packages/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>reticulate R package &amp; Travis</title>
+      <link>/post/2018/04/01/reticulate-r-package-travis/</link>
+      <pubDate>Sun, 01 Apr 2018 12:56:36 +0000</pubDate>
+      
+      <guid>/post/2018/04/01/reticulate-r-package-travis/</guid>
+      <description>I like to use Travis CI with my R packages. I recently wrote a R package, limmbo2, that is a wrapper for the python module limmbo. I used the R package reticulate, from Rstudio. I struggled for about 3 hours to write a .travis.yml file for limmbo2. Finally, I found a viable solution. I’m writing this blog post in hopes that it might be useful to myself and others in the future.</description>
+    </item>
     
     <item>
       <title>limmbo2 R package now on Github</title>

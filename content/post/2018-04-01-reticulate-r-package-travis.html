@@ -1,0 +1,33 @@
+---
+title: reticulate R package & Travis
+author: Frederick Boehm
+date: '2018-04-01 12:56:36'
+slug: reticulate-r-package-travis
+categories:
+  - packages
+  - python
+  - R
+  - computing
+tags:
+  - testing
+  - Travis-CI
+---
+
+
+
+<p>I like to use <a href="https://travis-ci.org">Travis CI</a> with my R packages. I recently wrote a R package, <a href="https://github.com/fboehm/limmbo2"><code>limmbo2</code></a>, that is a wrapper for the python module <a href="https://github.com/HannahVMeyer/limmbo"><code>limmbo</code></a>. I used the R package <a href="https://github.com/rstudio/reticulate"><code>reticulate</code></a>, from Rstudio. I struggled for about 3 hours to write a <code>.travis.yml</code> file for <code>limmbo2</code>. Finally, I found a viable solution. I’m writing this blog post in hopes that it might be useful to myself and others in the future.</p>
+<div id="why-is-using-travis-ci-potentially-tricky-for-packages-that-use-reticulate" class="section level2">
+<h2>Why is using Travis CI potentially tricky for packages that use <code>reticulate</code>?</h2>
+<p><code>reticulate</code> has python dependencies, so you have to ensure that any python modules that your package (or <code>reticulate</code>) uses are installed properly when Travis CI runs. Furthermore, the authors of the <code>limmbo</code> python module recommend that you use <code>conda</code> to install <code>limmbo</code>. This means that I needed to install <code>conda</code> on Travis CI. Fortunately, a web search turned up some useful yaml. I decided to set the python version variable to 2.7. I didn’t want to use python3, largely because I’ve really only worked with python2 in the past.</p>
+</div>
+<div id="what-is-a-solution-to-this" class="section level2">
+<h2>What is a solution to this?</h2>
+<p>Even though I haven’t yet written unit tests for <code>limmbo2</code>, I’m excited to have a .travis.yml file that results in a passing build on Travis CI.</p>
+<p>Here is the <a href="https://github.com/fboehm/limmbo2/blob/b3e035b7bc988cb235486d2da38bbe5c54daa7b6/.travis.yml">.travis.yml file</a>.</p>
+</div>
+<div id="caution" class="section level2">
+<h2>Caution</h2>
+<p>I need to caution readers that I haven’t verified that every line of my .travis.yml is <em>needed</em>. Rather, I just know that the current version yields a passing build.</p>
+<p>If you have ideas for how I might improve the .travis.yml file, please write them in the comments, or submit a pull request.</p>
+<p>Thanks!</p>
+</div>

@@ -1,0 +1,40 @@
+---
+title: reticulate R package & Travis
+author: Frederick Boehm
+date: '`r lubridate::now()`'
+slug: reticulate-r-package-travis
+categories:
+  - packages
+  - python
+  - R
+  - computing
+tags:
+  - testing
+  - Travis-CI
+---
+
+I like to use [Travis CI](https://travis-ci.org) with my R packages. I recently wrote a R package, [`limmbo2`](https://github.com/fboehm/limmbo2), that is a wrapper for the python module [`limmbo`](https://github.com/HannahVMeyer/limmbo). I used the R package [`reticulate`](https://github.com/rstudio/reticulate), from Rstudio. I struggled for about 3 hours to write a `.travis.yml` file for `limmbo2`. Finally, I found a viable solution. I'm writing this blog post in hopes that it might be useful to myself and others in the future.
+
+## Why is using Travis CI potentially tricky for packages that use `reticulate`?
+
+`reticulate` has python dependencies, so you have to ensure that any python modules that your package (or `reticulate`) uses are installed properly when Travis CI runs. Furthermore, the authors of the `limmbo` python module recommend that you use `conda` to install `limmbo`. This means that I needed to install `conda` on Travis CI. Fortunately, a web search turned up some useful yaml. I decided to set the python version variable to 2.7. I didn't want to use python3, largely because I've really only worked with python2 in the past. 
+
+## What is a solution to this? 
+
+Even though I haven't yet written unit tests for `limmbo2`, I'm excited to have a .travis.yml file that results in a passing build on Travis CI. 
+
+Here is the [.travis.yml file](https://github.com/fboehm/limmbo2/blob/b3e035b7bc988cb235486d2da38bbe5c54daa7b6/.travis.yml).
+
+
+## Caution
+
+I need to caution readers that I haven't verified that every line of my .travis.yml is *needed*. Rather, I just know that the current version yields a passing build.
+
+If you have ideas for how I might improve the .travis.yml file, please write them in the comments, or submit a pull request.
+
+Thanks!
+
+
+
+
+

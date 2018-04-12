@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>/post/2018/04/12/pkgdown-for-generating-package-websites-on-github/</loc>
+    <lastmod>2018-04-12T08:23:02+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/post/2018/04/01/reticulate-r-package-travis/</loc>
     <lastmod>2018-04-01T12:56:36+00:00</lastmod>
   </url>
@@ -201,7 +206,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2018-04-01T12:56:36+00:00</lastmod>
+    <lastmod>2018-04-12T08:23:02+00:00</lastmod>
   </url>
   
   <url>
@@ -241,6 +246,12 @@
   </url>
   
   <url>
+    <loc>/tags/pkgdown/</loc>
+    <lastmod>2018-04-12T08:23:02+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/categories/python/</loc>
     <lastmod>2018-04-01T12:56:36+00:00</lastmod>
     <priority>0</priority>
@@ -254,7 +265,7 @@
   
   <url>
     <loc>/tags/r/</loc>
-    <lastmod>2018-03-30T15:07:48+00:00</lastmod>
+    <lastmod>2018-04-12T08:23:02+00:00</lastmod>
     <priority>0</priority>
   </url>
   

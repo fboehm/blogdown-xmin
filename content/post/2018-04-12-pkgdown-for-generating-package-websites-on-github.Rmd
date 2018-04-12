@@ -1,0 +1,23 @@
+---
+title: pkgdown R package for generating package websites on Github
+author: Frederick Boehm
+date: '`r lubridate::now()`'
+slug: pkgdown-for-generating-package-websites-on-github
+categories: [computing]
+tags: [R, pkgdown]
+---
+
+I recently learned about the R package, [`pkgdown`](https://github.com/r-lib/pkgdown), an R package that provides functions that make it easy to build a website from an R package on Github.
+
+I decided to build a site for my package `qtl2pleio`. The site is [here](https://fboehm.github.io/qtl2pleio/index.html). It features a documentation page for each function in the package. 
+
+Using `pkgdown` is extremely easy.
+
+```{r, eval = FALSE}
+devtools::install_github("r-lib/pkgdown")
+library(pkgdown)
+build_site()
+```
+
+`pkgdown` is used by more than 1300 packages, according to its README file. 
+

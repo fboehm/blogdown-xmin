@@ -6,10 +6,22 @@
     <description>Recent content in Home on Frederick Boehm&#39;s Professional Website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 01 Apr 2018 12:56:36 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 12 Apr 2018 08:23:02 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>pkgdown R package for generating package websites on Github</title>
+      <link>/post/2018/04/12/pkgdown-for-generating-package-websites-on-github/</link>
+      <pubDate>Thu, 12 Apr 2018 08:23:02 +0000</pubDate>
+      
+      <guid>/post/2018/04/12/pkgdown-for-generating-package-websites-on-github/</guid>
+      <description>I recently learned about the R package, pkgdown, an R package that provides functions that make it easy to build a website from an R package on Github.
+I decided to build a site for my package qtl2pleio. The site is here. It features a documentation page for each function in the package.
+Using pkgdown is extremely easy.
+devtools::install_github(&amp;quot;r-lib/pkgdown&amp;quot;) library(pkgdown) build_site() pkgdown is used by more than 1300 packages, according to its README file.</description>
+    </item>
     
     <item>
       <title>reticulate R package &amp; Travis</title>
